@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<head>
+    <title>Repos browser</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+      <a href="{% url "octonyan:init_repo"%}">Init repo.</a>
+      <h2>Current repos:</h2>
+      <ul>
+      	{% for rep in repos%}
+					<li><a href="{% url "octonyan:repository" rep %}">{{rep}}</a></li>
+      	{% endfor %}
+      	<h4>{{status_message}}<h4>
+      </ul>
+</body>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<head>
+  <title>Initialize repo</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h2>Enter repository url:</h2>
+  <form action={% url "octonyan:init_repo"%} method="POST">
+  	{% csrf_token%}
+    <input type="text" name="repo_url">
+    <input type="submit" value="Init">
+ 	</form>
+ 	<p>{{status_message}}</p>
+</body>

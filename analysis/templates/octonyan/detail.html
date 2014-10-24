@@ -1,0 +1,39 @@
+<html>
+<head>
+	<title>Repo info</title>
+	<style>
+		body {
+			font: verdana;
+		}
+		.commit {
+			margin-bottom: 10px;
+			border-top: 2px solid black;
+		}
+	</style>
+</head>
+<body>
+		<table>
+			<tr>
+				<th>Commiter</th>
+				<th>Count of commit</th>
+			</tr>
+			{% for committer, count in committers.items%}
+		  	<tr>
+		  		<td>
+		  			{{committer}}
+		  		</td>
+		  		<td>{{count}}</td>
+		  	</tr>
+			{% endfor %}
+		</table>
+		<h3>Short Histrory</h3>
+		{% for id_commit, author, date, msg in history %}
+			<div class="commit">
+				<div>Commit: {{id_commit}}</div>
+				<div>Author: {{author}}</div>
+				<div>Date: {{date}}</div>
+				<div>Message:{{msg}}</div>
+			</div>
+		{% endfor %}
+</body>
+</html>
