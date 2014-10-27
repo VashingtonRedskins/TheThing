@@ -1,17 +1,25 @@
-<html>
-<head>
-	<title>Repo info</title>
-	<style>
+{% extends 'octonyan/octonyan.html' %}
+{% block mainarea%}
+<style>
 		body {
 			font: verdana;
 		}
 		.commit {
 			margin-bottom: 10px;
-			border-top: 2px solid black;
+			border-top: 1px solid black;
+		}
+
+		table {
+			margin: 10px;
+			padding: 5px;
+			border: solid black 2px;
+		}
+		
+		tr {
+			padding: 5px;
+			text-align: center;
 		}
 	</style>
-</head>
-<body>
 		<table>
 			<tr>
 				<th>Commiter</th>
@@ -29,11 +37,10 @@
 		<h3>Short Histrory</h3>
 		{% for id_commit, author, date, msg in history %}
 			<div class="commit">
-				<div>Commit: {{id_commit}}</div>
+				<div>Commit: <a href="{% url "octonyan:commit_view" repo id_commit %} ">{{id_commit}}</a></div>
 				<div>Author: {{author}}</div>
 				<div>Date: {{date}}</div>
 				<div>Message:{{msg}}</div>
 			</div>
 		{% endfor %}
-</body>
-</html>
+{% endblock %}

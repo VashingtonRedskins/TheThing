@@ -1,0 +1,13 @@
+{% extends "octonyan/octonyan.html" %}
+
+{% block mainarea %}
+	<div class="commit_info">
+		{% for old_path, new_path, changes in data %}
+			<h4>Old path: {{old_path}}</h4>
+			<h4>New path: {{new_path}}</h4>
+			{% for line in changes%}
+				<span>{{line}}</span><br/>
+			{% endfor %}
+		{% endfor %}
+	</div>
+{% endblock %}

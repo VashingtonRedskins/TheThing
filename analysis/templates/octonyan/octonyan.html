@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Octonyan app.</title>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div class="main_container" >
+			<a href="{% url "octonyan:init_repo"%}">Init repo.</a>
+			{% block mainarea %}
+			{% endblock %}
+		</div>
+	</body>
+</html>
