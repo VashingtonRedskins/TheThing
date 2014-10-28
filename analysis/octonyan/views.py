@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -128,6 +129,7 @@ def index(request):
     """View all current repository"""
 
     r = []
-    for d in listdir(settings.REPOS_PATH):
-        r.append(d)
+    if os.path.exists(settings.REPOS_PATH):
+        for d in listdir(settings.REPOS_PATH):
+            r.append(d)
     return render(request, "octonyan/index.html", {"repos": r})
