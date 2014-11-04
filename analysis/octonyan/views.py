@@ -26,9 +26,9 @@ def init_repo(request):
         status_msg = "Repository already exist"
         repo_url = request.POST["repo_url"].split('/')
         to_fetch = repo_url[-1]
-        dir = to_fetch.split('.')[0]
+        directory = to_fetch.split('.')[0]
         repo_url = "/".join(repo_url[:-1])
-        path = join(settings.REPOS_PATH, dir)
+        path = join(settings.REPOS_PATH, directory)
 
         if not exists(path):
             try:
@@ -107,12 +107,19 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
     commit = repository[commit_id.encode('latin-1')]
-    parent = repository[commit.parents[0]]
-    delta = diff_tree.tree_changes(repository, parent.tree, commit.tree)
+    if len(commit.parents) == 0:
+        parent = None
+    else:
+        parent = repository[commit.parents[0]].tree
+
+    delta = diff_tree.tree_changes(repository, parent, commit.tree)
 
     for item in delta:
         block = []
-        old = repository[item.old.sha].data.split("\n")
+        old = ""
+        if item.old.sha:
+            old = repository[item.old.sha].data.split("\n")
+
         new = repository[item.new.sha].data.split("\n")
         for line in unified_diff(old, new):
             block.append(line)
