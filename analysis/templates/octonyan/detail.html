@@ -38,6 +38,7 @@
 		{% for id_commit, author, date, msg in history %}
 			<div class="commit">
 				<div>Commit: <a href="{% url "octonyan:commit_view" repo id_commit %} ">{{id_commit}}</a></div>
+				<a href="{% url "octonyan:analysis" repo id_commit %}">view analysis</a>
 				<div>Author: {{author}}</div>
 				<div>Date: {{date}}</div>
 				<div>Message:{{msg}}</div>

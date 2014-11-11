@@ -8,4 +8,6 @@ urlpatterns = patterns(
     url(r"^repo/(?P<repo_dir>\w+)/$", views.repository, name="repository"),
     url(r"^repo/(?P<repo_dir>\w+)/(?P<commit_id>\w+)$",
         views.detail_commit_view, name="commit_view"),
+    url(r"^analys/(?P<repo_dir>\w+)/(?P<commit_id>\w+)$",
+        views.analysis, name="analysis"),
 )

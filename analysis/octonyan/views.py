@@ -12,6 +12,7 @@ from dulwich.client import HttpGitClient
 from shutil import rmtree
 from datetime import datetime
 from difflib import unified_diff
+import pep8
 
 
 # TODO add the ability to access by ssh client
@@ -94,8 +95,6 @@ def repository(request, repo_dir):
     )
 
 
-# FIXME first commit don't show because it doesn't have parents
-# raise IndexError and problem with TypeError are raising in some commits
 def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     """Return changes make in current commit
 
@@ -129,6 +128,65 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
         )
 
     return render(request, "octonyan/commit_info.html", {"data": data})
+
+
+# def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
+#     """Return changes make in current commit
+
+#     data -- include blocks code of each modify files
+#     """
+#     path = join(settings.REPOS_PATH, repo_dir)
+#     repository = repo.Repo(path)
+#     data = []
+#     # used encode('latin-1') below to solve some problem with unicode
+#     # and bytestring
+#     repository["HEAD"] = commit_id.encode('latin-1')
+#     repository._build_tree()
+#     # if len(commit.parents) == 0:
+#     #     parent = None
+#     # else:
+#     #     parent = repository[commit.parents[0]].tree
+
+#     # delta = diff_tree.tree_changes(repository, parent, commit.tree)
+
+#     # for item in delta:
+#     #     block = []
+#     #     old = ""
+#     #     if item.old.sha:
+#     #         old = repository[item.old.sha].data.split("\n")
+
+#     #     new = repository[item.new.sha].data.split("\n")
+#     #     for line in unified_diff(old, new):
+#     #         block.append(line)
+
+#     #     data.append(
+#     #         (item.old.path, item.new.path, block)
+#     #     )
+
+#     return render(request, "octonyan/commit_info.html", {"data": data})
+
+
+
+def analysis(request, repo_dir, commit_id):
+    path = join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(path)
+    # data = []
+    # used encode('latin-1') below to solve some problem with unicode
+    # and bytestring
+    repository["HEAD"] = commit_id.encode('latin-1')
+    repository._build_tree()
+
+    pep8style = pep8.StyleGuide(quiet=True)
+    res = pep8style.init_report();
+    pep8style.input_dir()
+    res.get_statistics()
+    print help(pep8)
+    # print pep8style.check_files().get_count()
+
+    # result = pep8style.check_files(item)
+    # print help(pep8style)
+
+    return HttpResponseRedirect(reverse("octonyan:index"))
 
 
 # TODO change when will complete registration
