@@ -1,18 +1,18 @@
 #!/usr/bin/python
-import os
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from os.path import join, exists
-from os import listdir
 from django.conf import settings
+
+from os import path
+from shutil import rmtree
+from os import listdir
+from datetime import datetime
+
 from dulwich import repo, diff_tree
 from dulwich.client import HttpGitClient
-from shutil import rmtree
-from datetime import datetime
 from difflib import unified_diff
-import pep8
 
 
 # TODO add the ability to access by ssh client
@@ -29,11 +29,11 @@ def init_repo(request):
         to_fetch = repo_url[-1]
         directory = to_fetch.split('.')[0]
         repo_url = "/".join(repo_url[:-1])
-        path = join(settings.REPOS_PATH, directory)
+        pth = path.join(settings.REPOS_PATH, directory)
 
-        if not exists(path):
+        if not path.exists(pth):
             try:
-                local = repo.Repo.init(path, mkdir=True)
+                local = repo.Repo.init(pth, mkdir=True)
                 client = HttpGitClient(repo_url)
                 remote_refs = client.fetch(
                     to_fetch, local,
@@ -45,7 +45,7 @@ def init_repo(request):
                 return HttpResponseRedirect(reverse("octonyan:index"))
 
             except Exception:
-                rmtree(path)
+                rmtree(pth)
                 status_msg = "Something went wrong."
 
         return render(request, "octonyan/init_form.html",
@@ -59,8 +59,8 @@ def init_repo(request):
 def repository(request, repo_dir):
     """View basic commits information"""
 
-    path = join(settings.REPOS_PATH, repo_dir)
-    repository = repo.Repo(path)
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
     walker = repository.get_graph_walker()
     committers = dict()
     history = []
@@ -100,8 +100,8 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 
     data -- include blocks code of each modify files
     """
-    path = join(settings.REPOS_PATH, repo_dir)
-    repository = repo.Repo(path)
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
     data = []
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
@@ -166,26 +166,14 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 #     return render(request, "octonyan/commit_info.html", {"data": data})
 
 
-
 def analysis(request, repo_dir, commit_id):
-    path = join(settings.REPOS_PATH, repo_dir)
-    repository = repo.Repo(path)
-    # data = []
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
+    data = []
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
     repository["HEAD"] = commit_id.encode('latin-1')
     repository._build_tree()
-
-    pep8style = pep8.StyleGuide(quiet=True)
-    res = pep8style.init_report();
-    pep8style.input_dir()
-    res.get_statistics()
-    print help(pep8)
-    # print pep8style.check_files().get_count()
-
-    # result = pep8style.check_files(item)
-    # print help(pep8style)
-
     return HttpResponseRedirect(reverse("octonyan:index"))
 
 
@@ -194,7 +182,7 @@ def index(request):
     """View all current repository"""
 
     r = []
-    if os.path.exists(settings.REPOS_PATH):
+    if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
             r.append(d)
     return render(request, "octonyan/index.html", {"repos": r})
