@@ -14,6 +14,8 @@ from dulwich import repo, diff_tree
 from dulwich.client import HttpGitClient
 from difflib import unified_diff
 
+from octonyan import utils
+
 
 # TODO add the ability to access by ssh client
 def init_repo(request):
@@ -169,12 +171,14 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 def analysis(request, repo_dir, commit_id):
     pth = path.join(settings.REPOS_PATH, repo_dir)
     repository = repo.Repo(pth)
-    data = []
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
     repository["HEAD"] = commit_id.encode('latin-1')
     repository._build_tree()
-    return HttpResponseRedirect(reverse("octonyan:index"))
+    print pth
+    report = utils.check_source(pth)
+
+    return render(request, "octonyan/analysis.html", {"report": report, "repo": repo_dir})
 
 
 # TODO change when will complete registration
