@@ -31,7 +31,7 @@ class PyChecker:
     """Python code checker for PEP257 and PEP8."""
 
     reg_to_count = {
-        "functions": "def [a - zA - Z]\w * (\(\): |\(.*\):)\n",
+        "functions": "def [a-zA-Z]\w*(\(\):|\(.*\):)\n",
         "classes": "class [a-zA-Z]\w*(:|\(\):|\(.*\):)\n",
     }
 
@@ -40,7 +40,7 @@ class PyChecker:
         """Check on match regex and giving line."""
         current = re.compile(regex)
 
-        return current.match(line)
+        return current.search(line)
 
     # FEATURE add ability to using custom config file
     def __init__(self, root, cur_file=None, config_file=None):
@@ -81,8 +81,12 @@ class PyChecker:
         """
         pep8style = pep8.StyleGuide(quiet=True)
         report = pep8style.check_files([self.current_file, ])
+        style_stat = report.get_statistics()
+        total = report.total_errors
+        style_stat = len(style_stat) != [] and style_stat or []
+        total != 0 and total or 0
 
-        return (report.get_statistics(), report.total_errors)
+        return (style_stat, total)
 
     def get_count_prop(self):
         """Count of params which contain checking code.
@@ -91,8 +95,10 @@ class PyChecker:
         methods and/or functions.
 
         """
-        code_count_lines = 0
+        code_count_lines = 1
         counter = dict()
+        for prop, reg in PyChecker.reg_to_count.items():
+            counter[prop] = 0
 
         for line in open(self.current_file):
             code_count_lines += 1
@@ -100,9 +106,9 @@ class PyChecker:
             for prop, reg in PyChecker.reg_to_count.items():
 
                 if PyChecker.match_by_reg(line, reg):
-                    counter[prop] = counter.get(prop, 0) + 1
+                    counter[prop] += + 1
 
-        counter["count line of code"] = code_count_lines
+        counter["count_lines"] = code_count_lines
 
         return counter
 

@@ -12,18 +12,18 @@
                     {% for prop, num in count.items %}
                         <li><h4>{{prop}}:{{num}}</h4></li>
                     {% endfor %}
-                    <li>Total docstring errors and warnings: {{total_docs}}</li>
                     <h4>PEP257</h4>
                     {% for er in docs %}
                         <li>{{er}}</li>
                     {% endfor %}
+                    <h4>Total: {{total_docs}}</h4>
                 </ul>
                 <ul>
-                    <li>Total count errors and warnings: {{total_style}}</li>
                     <h4>PEP8</h4>
                     {% for er in style %}
                         <li>{{er}}</li>
                     {% endfor %}
+                    <h4>Total: {{total_style}}</h4>
                 </ul>
             </li>
         </ul>

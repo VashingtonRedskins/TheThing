@@ -1,59 +1,27 @@
 #!/usr/bin/python
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.views.generic.edit import FormView
 
 from os import path
-from shutil import rmtree
 from os import listdir
 from datetime import datetime
 
 from dulwich import repo, diff_tree
-from dulwich.client import HttpGitClient
 from difflib import unified_diff
 
 from octonyan import utils
+from octonyan.forms import AddingRepositoryForm
 
 
-# TODO add the ability to access by ssh client
-def init_repo(request):
-    """Clone git repository by url and register it
-    if doesn't exist. Return state about doing work.
+class InitRepoView(FormView):
 
-    repo_url -- entering repo https url
-    status_msg -- indicate state with init repository
-    """
-    if request.POST:
-        status_msg = "Repository already exist"
-        repo_url = request.POST["repo_url"].split('/')
-        to_fetch = repo_url[-1]
-        directory = to_fetch.split('.')[0]
-        repo_url = "/".join(repo_url[:-1])
-        pth = path.join(settings.REPOS_PATH, directory)
+    """docstring for InitRepoView"""
 
-        if not path.exists(pth):
-            try:
-                local = repo.Repo.init(pth, mkdir=True)
-                client = HttpGitClient(repo_url)
-                remote_refs = client.fetch(
-                    to_fetch, local,
-                    determine_wants=local.object_store.determine_wants_all,
-                )
-                local["HEAD"] = remote_refs["HEAD"]
-                local._build_tree()
-
-                return HttpResponseRedirect(reverse("octonyan:index"))
-
-            except Exception:
-                rmtree(pth)
-                status_msg = "Something went wrong."
-
-        return render(request, "octonyan/init_form.html",
-                      {"status_message": status_msg})
-
-    return render(request, "octonyan/init_form.html")
+    template_name = "octonyan/init_form.html"
+    form_class = AddingRepositoryForm
+    success_url = "/octonyan/"
 
 
 # TODO add content to view changes files bettwen commit
@@ -140,30 +108,30 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 #     path = join(settings.REPOS_PATH, repo_dir)
 #     repository = repo.Repo(path)
 #     data = []
-#     # used encode('latin-1') below to solve some problem with unicode
-#     # and bytestring
+# used encode('latin-1') below to solve some problem with unicode
+# and bytestring
 #     repository["HEAD"] = commit_id.encode('latin-1')
 #     repository._build_tree()
-#     # if len(commit.parents) == 0:
-#     #     parent = None
-#     # else:
-#     #     parent = repository[commit.parents[0]].tree
+# if len(commit.parents) == 0:
+# parent = None
+# else:
+# parent = repository[commit.parents[0]].tree
 
-#     # delta = diff_tree.tree_changes(repository, parent, commit.tree)
+# delta = diff_tree.tree_changes(repository, parent, commit.tree)
 
-#     # for item in delta:
-#     #     block = []
-#     #     old = ""
-#     #     if item.old.sha:
-#     #         old = repository[item.old.sha].data.split("\n")
+# for item in delta:
+# block = []
+# old = ""
+# if item.old.sha:
+# old = repository[item.old.sha].data.split("\n")
 
-#     #     new = repository[item.new.sha].data.split("\n")
-#     #     for line in unified_diff(old, new):
-#     #         block.append(line)
+# new = repository[item.new.sha].data.split("\n")
+# for line in unified_diff(old, new):
+# block.append(line)
 
-#     #     data.append(
-#     #         (item.old.path, item.new.path, block)
-#     #     )
+# data.append(
+# (item.old.path, item.new.path, block)
+# )
 
 #     return render(request, "octonyan/commit_info.html", {"data": data})
 
@@ -178,7 +146,8 @@ def analysis(request, repo_dir, commit_id):
     print pth
     report = utils.check_source(pth)
 
-    return render(request, "octonyan/analysis.html", {"report": report, "repo": repo_dir})
+    return render(request, "octonyan/analysis.html",
+                  {"report": report, "repo": repo_dir})
 
 
 # TODO change when will complete registration
@@ -188,5 +157,6 @@ def index(request):
     r = []
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
+            print d
             r.append(d)
     return render(request, "octonyan/index.html", {"repos": r})
