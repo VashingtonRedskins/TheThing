@@ -26,7 +26,7 @@ def get_checker(path_str, checker_name="pep8"):
     return checkers[checker_name](path_str)
 
 
-class PyChecker:
+class PyChecker(object):
 
     """Python code checker for PEP257 and PEP8."""
 
