@@ -7,19 +7,19 @@ from dulwich.client import HttpGitClient
 from dulwich import repo
 
 
-class AddingRepositoryForm(forms.Form):
+class InitRepositoryForm(forms.Form):
 
     """Basic repository url form"""
     repository_url = forms.CharField(
         required=True, max_length=150, min_length=20)
 
     @staticmethod
-    def parse_url(repo_url):
+    def parse_http_url(repo_url):
         """Parsing full repo url.
 
         Return:
           to_fetch -- string to git client, format *.git
-
+          dir_name -- media_path/repository_name without git extension
         """
         r = re.compile("/[\w-]+.git")
         url = r.search(repo_url)
@@ -32,22 +32,19 @@ class AddingRepositoryForm(forms.Form):
 
             return (repo_url, to_fetch, dir_name)
 
-        raise forms.ValidationError("Incorent url to repository")
+        raise forms.ValidationError("Incorect url to repository.")
 
     def clean_repository_url(self):
-        """Check on valid state repository url and try download it."""
+        """Check on valid state repository url and try download it into."""
         checker = re.compile("htt(p|ps)://\w.+/\w.+/\w.+.git")
         repository_url = self.cleaned_data["repository_url"]
         print "first repo url", repository_url
         if not checker.match(repository_url):
-            raise forms.ValidationError("Incorent url to repository")
+            raise forms.ValidationError("Incorrect url to repository.")
 
-        repository_url, to_fetch, dir_name = AddingRepositoryForm.parse_url(
+        repository_url, to_fetch, dir_name = InitRepositoryForm.parse_http_url(
             repository_url)
 
-        print "R_URL", repository_url
-        print "to_fetch", to_fetch
-        print "dir name", dir_name
         pth = path.join(settings.REPOS_PATH, dir_name)
         if not path.exists(pth):
             try:

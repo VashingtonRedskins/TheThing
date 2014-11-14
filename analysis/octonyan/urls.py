@@ -4,7 +4,7 @@ from octonyan import views
 urlpatterns = patterns(
     "",
     url(r"^$", views.index, name='index'),
-    url(r"^init/$", views.InitRepoView.as_view(), name="init_repo"),
+    url(r"^init/$", views.InitRepositoryView.as_view(), name="init_repo"),
     url(r"^repo/(?P<repo_dir>\w[\w-]+)/$",
         views.repository, name="repository"),
     url(r"^repo/(?P<repo_dir>\w[\w-]+)/(?P<commit_id>\w+)$",

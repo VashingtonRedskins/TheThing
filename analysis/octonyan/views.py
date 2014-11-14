@@ -13,15 +13,15 @@ from difflib import unified_diff
 import operator
 
 from octonyan import utils
-from octonyan.forms import AddingRepositoryForm
+from octonyan.forms import InitRepositoryForm
 
 
-class InitRepoView(FormView):
+class InitRepositoryView(FormView):
 
     """Getting form to add new repository"""
 
     template_name = "octonyan/init_form.html"
-    form_class = AddingRepositoryForm
+    form_class = InitRepositoryForm
     success_url = "/octonyan/"
 
 
