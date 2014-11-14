@@ -1,71 +1,39 @@
 #!/usr/bin/python
-import os
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from os.path import join, exists
-from os import listdir
 from django.conf import settings
-from dulwich import repo, diff_tree
-from dulwich.client import HttpGitClient
-from shutil import rmtree
+from django.views.generic.edit import FormView
+
+from os import path
+from os import listdir
 from datetime import datetime
+
+from dulwich import repo, diff_tree
 from difflib import unified_diff
+import operator
+
+from octonyan import utils
+from octonyan.forms import InitRepositoryForm
 
 
-# TODO add the ability to access by ssh client
-def init_repo(request):
-    """Clone git repository by url and register it
-    if doesn't exist. Return state about doing work.
+class InitRepositoryView(FormView):
 
-    repo_url -- entering repo https url
-    status_msg -- indicate state with init repository
-    """
-    if request.POST:
-        status_msg = "Repository already exist"
-        repo_url = request.POST["repo_url"].split('/')
-        to_fetch = repo_url[-1]
-        directory = to_fetch.split('.')[0]
-        repo_url = "/".join(repo_url[:-1])
-        path = join(settings.REPOS_PATH, directory)
+    """Getting form to add new repository"""
 
-        if not exists(path):
-            try:
-                local = repo.Repo.init(path, mkdir=True)
-                client = HttpGitClient(repo_url)
-                remote_refs = client.fetch(
-                    to_fetch, local,
-                    determine_wants=local.object_store.determine_wants_all,
-                )
-                local["HEAD"] = remote_refs["HEAD"]
-                local._build_tree()
-
-                return HttpResponseRedirect(reverse("octonyan:index"))
-
-            except Exception:
-                rmtree(path)
-                status_msg = "Something went wrong."
-
-        return render(request, "octonyan/init_form.html",
-                      {"status_message": status_msg})
-
-    return render(request, "octonyan/init_form.html")
+    template_name = "octonyan/init_form.html"
+    form_class = InitRepositoryForm
+    success_url = "/octonyan/"
 
 
-# TODO add content to view changes files bettwen commit
-# and parrent commit or imp featur such as git blame [file]
 def repository(request, repo_dir):
     """View basic commits information"""
 
-    path = join(settings.REPOS_PATH, repo_dir)
-    repository = repo.Repo(path)
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
     walker = repository.get_graph_walker()
     committers = dict()
     history = []
     cset = walker.next()
-    # print patch.write_tree_diff(
-    #     sys.stdout, repository.object_store, prev.tree, cur.tree)
 
     while cset is not None:
         commit = repository.get_object(cset)
@@ -81,8 +49,11 @@ def repository(request, repo_dir):
         history.append(data)
         cset = walker.next()
 
+    sorted_commiters = sorted(
+        committers.items(), key=operator.itemgetter(1), reverse=True)
+
     context = {
-        "committers": committers,
+        "committers": sorted_commiters,
         "history": history,
         "repo": repo_dir,
     }
@@ -94,15 +65,14 @@ def repository(request, repo_dir):
     )
 
 
-# FIXME first commit don't show because it doesn't have parents
-# raise IndexError and problem with TypeError are raising in some commits
+# TODO refactoring and change
 def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     """Return changes make in current commit
 
     data -- include blocks code of each modify files
     """
-    path = join(settings.REPOS_PATH, repo_dir)
-    repository = repo.Repo(path)
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
     data = []
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
@@ -131,12 +101,28 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     return render(request, "octonyan/commit_info.html", {"data": data})
 
 
+# TODO refactoring and change
+def analysis(request, repo_dir, commit_id):
+    pth = path.join(settings.REPOS_PATH, repo_dir)
+    repository = repo.Repo(pth)
+    # used encode('latin-1') below to solve some problem with unicode
+    # and bytestring
+    repository["HEAD"] = commit_id.encode('latin-1')
+    repository._build_tree()
+    print pth
+    report = utils.check_source(pth)
+
+    return render(request, "octonyan/analysis.html",
+                  {"report": report, "repo": repo_dir})
+
+
 # TODO change when will complete registration
 def index(request):
     """View all current repository"""
 
     r = []
-    if os.path.exists(settings.REPOS_PATH):
+    if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
+            print d
             r.append(d)
     return render(request, "octonyan/index.html", {"repos": r})
