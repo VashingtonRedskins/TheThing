@@ -3,11 +3,10 @@
 import os
 import re
 
-import pep257
 import pep8
+import pep257
 
 
-# TODO fix situation when style checker doesn't exist
 def check_source(path_str, style="pep8"):
     """Get checker by style arg and run full analysis in giving directory.
 
@@ -16,27 +15,37 @@ def check_source(path_str, style="pep8"):
     """
     checker = get_checker(path_str, style)
 
-    return checker.get_all_stat()
+    return checker.get_root_stat()
 
 
-def get_checker(path_str, checker_name="pep8"):
-    """Return appropriate checker instance(fabric method)."""
-    checkers = dict(pep8=PyChecker,)
+class StyleGuideCustomReport(pep8.StandardReport):
 
-    return checkers[checker_name](path_str)
+    def get_file_results(self):
+        result = []
+        if self._deferred_print:
+            self._deferred_print.sort()
+            for line_number, offset, code, text, doc in self._deferred_print:
+                s = '%d| %s    %s' % (line_number, code, text)
+                result.append(s)
+
+            return result
 
 
 class PyChecker(object):
 
     """Python code checker for PEP257 and PEP8."""
 
-    reg_to_count = {
-        "functions": "def [a-zA-Z]\w*(\(\):|\(.*\):)\n",
-        "classes": "class [a-zA-Z]\w*(:|\(\):|\(.*\):)\n",
-    }
+    MATCHING_STR = "(def\ [a-zA-Z_]\w*(\(\):|\(.*\):)| \
+              class\ [a-zA-Z_]\w*(:|\(\):|\(.*\):))\n"
+
+    IGNORE = [
+        'D200', 'D201', 'D202', 'D203', 'D204',
+        'D205', 'D206', 'D207', 'D208', 'D209',
+        'D300', 'D301', 'D302',
+        'D400', 'D401', 'D402', ]
 
     @staticmethod
-    def match_by_reg(line, regex):
+    def match_by_reg(line, regex=MATCHING_STR):
         """Check on match regex and giving line."""
         current = re.compile(regex)
 
@@ -60,138 +69,159 @@ class PyChecker(object):
         """Set current file for checker methods."""
         self.current_file = cur_file
 
-    def check_docstr(self):
-        """Check current file on matching pep257 convections.
-
-        Return tuple contain all errors and their total size.
-
-        """
+    def check_docstr_wrap(self, ignore=()):
+        """Return pep257 report of module."""
         report = pep257.check([self.current_file, ])
-        if report:
-            result = [i for i in report]
-            return (result, len(result))
 
-        return ([], 0)
+        return report
 
-    def check_style(self):
-        """Check current file on matching pep8 convections.
-
-        Return tuple contain all errors/warnigs and their total size.
-
-        """
-        pep8style = pep8.StyleGuide(quiet=True)
+    def check_style_wrap(self, reporter=StyleGuideCustomReport):
+        """Return pep8 report of module."""
+        pep8style = pep8.StyleGuide(reporter=reporter)
         report = pep8style.check_files([self.current_file, ])
-        style_stat = report.get_statistics()
-        total = report.total_errors
-        style_stat = len(style_stat) != [] and style_stat or []
-        total != 0 and total or 0
 
-        return (style_stat, total)
+        return report
 
-    def get_count_prop(self):
-        """Count of params which contain checking code.
+    def get_lloc(self):
+        docstr = False
+        count_logic_line = 0
+        lines = [line.strip() for line in open(self.current_file)]
+        for line in lines:
+            if line == "" \
+                    or line.startswith("#") \
+                    or docstr and not (line.startswith('\"\"\"')
+                                       or line.startswith("\'\'\'")) \
+                    or (line.startswith("'''") and line.endswith("\'\'\'")
+                        and len(line) > 3) \
+                    or (line.startswith('"""') and line.endswith('\"\"\"')
+                        and len(line) > 3):
+                continue
 
-        Return py dict contain count of line code, classes,
-        methods and/or functions.
+            elif line.startswith('\"\"\"') or line.startswith("\'\'\'"):
+                docstr = not docstr
+                continue
 
-        """
-        code_count_lines = 1
-        counter = dict()
-        for prop, reg in PyChecker.reg_to_count.items():
-            counter[prop] = 0
+            else:
+                count_logic_line += 1
 
+        return count_logic_line
+
+    def get_count_defines(self):
+        """Return number of defines python class and function."""
+        count_defines = 1
         for line in open(self.current_file):
-            code_count_lines += 1
+            if PyChecker.match_by_reg(line):
+                count_defines += 1
 
-            for prop, reg in PyChecker.reg_to_count.items():
+        return count_defines
 
-                if PyChecker.match_by_reg(line, reg):
-                    counter[prop] += + 1
+    def get_metrics(self):
+        """Check current file and return metrics."""
+        line_error_identifier = set()
+        for message in self.check_style_wrap():
+            line_error_identifier.add(message.split('|'))
+        style_quality = len(line_error_identifier)
+        line_error_identifier.clear()
 
-        counter["count_lines"] = code_count_lines
+        for doc_error in self.check_docstr_wrap():
+            line_error_identifier.add(doc_error.line)
+        docstr_quality = len(line_error_identifier)
+        line_error_identifier.clear()
 
-        return counter
+        for doc_error in \
+                self.check_docstr_wrap(ignore=PyChecker.IGNORE):
+            line_error_identifier.add(doc_error.line)
+        docstr_cover = len(line_error_identifier)
 
-    def get_all_stat(self):
-        """Get full statistic all modules which contain root directory.
+        style_quality = round(float(style_quality) / self.get_lloc(), 2)
 
-        Return tuple of typles params:
-            f -- name of checking file
-            dirpath -- file directory path
-            docs -- tuple contain list of pep257 errors
-            source_prop_stat -- dict contain code properties,
-              for example(count of line source code
-            total_doc_er -- total count of pep257 errors
-            style -- tuple contain list of errors
-            total_er -- pep8 total count errors
+        docstr_quality = round(
+            float(style_quality) / self.get_count_defines(), 2)
 
-        """
+        docstr_cover = round(
+            float(style_quality) / self.get_count_defines(), 2)
+
+        return (style_quality, docstr_quality, docstr_cover, )
+
+    def get_root_stat(self):
         extension = ".*.py"
-        report_data = []
+        file_counter = 0
+        total_style = 0.0
+        total_docstr = 0.0
+        total_docstr_cover = 0.0
 
         for dirpath, dirs, filenames in os.walk(self.root):
             for f in filenames:
                 if PyChecker.match_by_reg(f, extension):
+                    file_counter += 1
                     self.set_current_file(os.path.join(dirpath, f))
-                    style, total_er = self.check_style()
-                    docs, total_doc_er = self.check_docstr()
-                    source_prop_stat = self.get_count_prop()
+                    style, docstr, docstr_cover = self.get_metrics()
+                    total_style += style
+                    total_docstr += docstr
+                    total_docstr_cover += docstr_cover
 
-                    tpl = (
-                        f,
-                        dirpath,
-                        docs,
-                        source_prop_stat,
-                        total_doc_er,
-                        style,
-                        total_er,
-                    )
+        total_style = round(float(total_style) / file_counter, 2)
+        total_docstr = round(float(total_docstr) / file_counter, 2)
+        total_docstr_cover = round(float(total_docstr_cover) / file_counter, 2)
 
-                    report_data.append(tpl)
+        return total_style, total_docstr, total_docstr_cover
 
-        return report_data
+
+def get_checker(path_str, checker_name="pep8"):
+    """Return appropriate checker instance(fabric method)."""
+    checkers = dict(pep8=PyChecker,)
+
+    return checkers[checker_name](path_str)
 
 
 if __name__ == "__main__":
-    test_data = [
-        "class Foo(a, b, c=14):\n",
-        "pass",
-        "sdfsd class Fo14_14_bar(a = \"Foo.txt\"):\n"
-        "    class Fo-Bar():\n"
-        "class FoBar():\n",
-        "class FoBar:\n",
-        "    def foo():\n",
-        "        def foo():\n",
-        "def foo_bar:\n",
-        "def foo_bar():\n",
-        "def foo_bar(a=15, b=\"Hello\", c=\"None\")",
-    ]
+    # test_data = [
+    #     "class Foo(a, b, c=14):\n",
+    #     "pass",
+    #     "sdfsd class Fo14_14_bar(a = \"Foo.txt\"):\n"
+    #     "    class Fo-Bar():\n"
+    #     "class FoBar():\n",
+    #     "class FoBar:\n",
+    #     "    def foo():\n",
+    #     "        def foo():\n",
+    #     "def foo_bar:\n",
+    #     "def foo_bar():\n",
+    #     "def foo_bar(a=15, b=\"Hello\", c=\"None\")",
+    # ]
 
-    path = ("/home/ram1rez/Repos/"
-            "TheThing/analysis/media/"
-            "repos/russian_word/"
-            "input_over_picture/"
-            )
+    # path = ("/home/ram1rez/Repos/"
+    #         "TheThing/analysis/media/"
+    #         "repos/russian_word/"
+    #         "input_over_picture/"
+    #         )
 
-    checker = PyChecker(path)
-    for f, dirpath, docs, count_func_class, total_docs, style, total_err \
-            in checker.get_all_stat():
-        print "=============================="
-        print "Dirpaht   :", dirpath
-        print "Filename  :", f
-        print "DOC WARNING AND ERROR"
-        for doc in docs:
-            print "   ", doc
-        print "TOTAL COUNT ERROR DOCS", total_docs
-        print "FILE count of function, lines of code, classes"
-        for key, val in count_func_class.items():
-            print "<<<<<<>>>>>>"
-            print key, val
-            print "<<<<<<>>>>>>"
-        print "PEP CONV WARNING AND ERROR"
-        for st in style:
-            print st
-        print "<<<<<<STYLE>>>>"
-        print style
-        print "TOTAL STYLE =====>>>", total_err
-        print "=============================="
+    # checker = PyChecker(path)
+    # for f, dirpath, docs, count_func_class, total_docs, style, total_err \
+    #         in checker.get_all_stat():
+    #     print "=============================="
+    #     print "Dirpaht   :", dirpath
+    #     print "Filename  :", f
+    #     print "DOC WARNING AND ERROR"
+    #     for doc in docs:
+    #         print "   ", doc
+    #     print "TOTAL COUNT ERROR DOCS", total_docs
+    #     print "FILE count of function, lines of code, classes"
+    #     for key, val in count_func_class.items():
+    #         print "<<<<<<>>>>>>"
+    #         print key, val
+    #         print "<<<<<<>>>>>>"
+    #     print "PEP CONV WARNING AND ERROR"
+    #     for st in style:
+    #         print st
+    #     print "<<<<<<STYLE>>>>"
+    #     print style
+    #     print "TOTAL STYLE =====>>>", total_err
+    #     print "=============================="
+    s = "/home/ram1rez/Repos/TheThing/analysis/octonyan/utils.py"
+    style = pep8.StyleGuide(reporter=StyleGuideCustomReport)
+    r = style.check_files([s, ])
+    print dir(r)
+    print r.get_file_results()
+    # checker = pep8.Checker(s)
+    # for line in checker.lines:
+    #     print line
