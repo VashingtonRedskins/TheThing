@@ -38,7 +38,6 @@ class InitRepositoryForm(forms.Form):
         """Check on valid state repository url and try download it into."""
         checker = re.compile("htt(p|ps)://\w.+/\w.+/\w.+.git")
         repository_url = self.cleaned_data["repository_url"]
-        print "first repo url", repository_url
         if not checker.match(repository_url):
             raise forms.ValidationError("Incorrect url to repository.")
 
@@ -57,9 +56,6 @@ class InitRepositoryForm(forms.Form):
                 local["HEAD"] = remote_refs["HEAD"]
                 local._build_tree()
 
-            except Exception, e:
-                "<<<<<<<<<<<<<<<Exception log"
-                print str(e)
-                "<<<<<<<<<<<<<<<Exception log"
+            except Exception:
                 rmtree(pth)
                 raise forms.ValidationError("Something went wrong.")

@@ -27,7 +27,6 @@ class InitRepositoryView(FormView):
 
 def repository(request, repo_dir):
     """View basic commits information"""
-
     pth = path.join(settings.REPOS_PATH, repo_dir)
     repository = repo.Repo(pth)
     walker = repository.get_graph_walker()
@@ -69,7 +68,8 @@ def repository(request, repo_dir):
 def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     """Return changes make in current commit
 
-    data -- include blocks code of each modify files
+    data -- include blocks code of each modify files.
+
     """
     pth = path.join(settings.REPOS_PATH, repo_dir)
     repository = repo.Repo(pth)
@@ -119,7 +119,6 @@ def analysis(request, repo_dir, commit_id):
 # TODO change when will complete registration
 def index(request):
     """View all current repository"""
-
     r = []
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
