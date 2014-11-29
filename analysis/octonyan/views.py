@@ -3,6 +3,11 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.views.generic.edit import FormView
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.contrib.auth import login
+from django.dispatch import receiver
+
 
 from os import path
 from os import listdir
@@ -14,7 +19,28 @@ import operator
 
 from octonyan import utils
 from octonyan.forms import InitRepositoryForm
+
 from analysis.tasks import re_statistic
+
+from registration.backends.default.views import ActivationView
+from registration.signals import user_activated
+
+
+@receiver(user_activated)
+def login_on_activation(sender, user, request, **kwargs):
+    """Logs in the user after activation"""
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+
+
+class OctonyanActivationView(ActivationView):
+
+    """ Override success_url by ActivationView. """
+
+    def get_success_url(self, request, user):
+        """ Redirect to dashboard after activation."""
+        return "/octonyan/"
+
 
 class InitRepositoryView(FormView):
 
@@ -24,7 +50,12 @@ class InitRepositoryView(FormView):
     form_class = InitRepositoryForm
     success_url = "/octonyan/"
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(FormView, self).dispatch(*args, **kwargs)
 
+
+@login_required
 def repository(request, repo_dir):
     """View basic commits information"""
     pth = path.join(settings.REPOS_PATH, repo_dir)
@@ -65,6 +96,7 @@ def repository(request, repo_dir):
 
 
 # TODO refactoring and change
+@login_required
 def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
     """Return changes make in current commit
 
@@ -102,6 +134,7 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 
 
 # TODO refactoring and change
+@login_required
 def analysis(request, repo_dir, commit_id):
     pth = path.join(settings.REPOS_PATH, repo_dir)
     repository = repo.Repo(pth)
@@ -117,10 +150,12 @@ def analysis(request, repo_dir, commit_id):
 
 
 # TODO change when will complete registration
+@login_required
 def index(request):
     """View all current repository"""
     r = []
-    re_statistic.delay() # call celery method by async
+    # call celery method by async
+    re_statistic.delay()
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
             print d
