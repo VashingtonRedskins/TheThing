@@ -1,6 +1,9 @@
 # Django settings for analysis project.
 
 import os
+import djcelery
+
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -129,6 +132,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'octonyan',
+    'djcelery',
+    'djkombu',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

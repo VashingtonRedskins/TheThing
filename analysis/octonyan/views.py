@@ -14,7 +14,7 @@ import operator
 
 from octonyan import utils
 from octonyan.forms import InitRepositoryForm
-
+from analysis.tasks import re_statistic
 
 class InitRepositoryView(FormView):
 
@@ -120,6 +120,7 @@ def analysis(request, repo_dir, commit_id):
 def index(request):
     """View all current repository"""
     r = []
+    re_statistic.delay() # call celery method by async
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
             print d
