@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Octonyan app.</title>
+		<meta charset="UTF-8">
+		<link href="http://fonts.googleapis.com/css?family=Oswald:400,300" rel="stylesheet">
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{% static 'octonyan/css/styles.css' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'jquery/jquery.remodal.css' %}">
+		<script type="text/javascript" src="{% static 'jquery/jquery-2.1.0.min.js' %}"></script>
+	</head>
+	<body>
+		{% block main %}
+		{% endblock %}
+		<script type="text/javascript" src="{% static 'jquery/jquery.remodal.js' %}"></script>
+		<script type="text/javascript" src="{% static 'octonyan/js/modal_form.js'%}"></script>
+	</body>
+</html>
