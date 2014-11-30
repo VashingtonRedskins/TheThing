@@ -2,6 +2,8 @@ Django==1.6.5
 dulwich==0.9.7
 pep257==0.3.2
 pep8==1.5.7
-djcelery
-djkombu
 django-registration==1.0
+celery
+celery-with-redis
+django-celery
+django-kombu
