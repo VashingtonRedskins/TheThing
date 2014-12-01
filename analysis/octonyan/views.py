@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from django.contrib.auth.models import User
 
 from django.shortcuts import render
 from django.conf import settings
@@ -19,9 +20,8 @@ import operator
 
 from octonyan import utils
 from octonyan.forms import InitRepositoryForm
-
-from analysis.tasks import re_statistic
-
+from analysis.tasks import re_statistic, create_repo
+from octonyan.models import Repository, Analysis
 from registration.backends.default.views import ActivationView
 from registration.signals import user_activated
 
@@ -50,12 +50,22 @@ class InitRepositoryView(FormView):
     form_class = InitRepositoryForm
     success_url = "/octonyan/"
 
+    def form_valid(self, form):
+        """
+        If the form is valid, redirect to the supplied URL.
+        """
+        create_repo.delay(
+            form.cleaned_data['repository_url'],
+            form.cleaned_data['dir_name'], form.cleaned_data['to_fetch'], self.request.user
+        )
+        return super(InitRepositoryView, self).form_valid(form)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(FormView, self).dispatch(*args, **kwargs)
 
 
 @login_required
+
 def repository(request, repo_dir):
     """View basic commits information"""
     pth = path.join(settings.REPOS_PATH, repo_dir)
@@ -155,7 +165,6 @@ def index(request):
     """View all current repository"""
     r = []
     # call celery method by async
-    re_statistic.delay()
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
             print d

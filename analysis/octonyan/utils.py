@@ -1,4 +1,5 @@
-"""Utilits and helpers to web app.
+"""
+Utils and helpers to web app.
 
 Checker class implementaion check of quality code,
  simple docstring quality and coverage.
@@ -11,11 +12,6 @@ import pep8
 import pep257
 
 
-def check_source(path_str, style="pep8"):
-    """Check all files in setting path, use appropriate checker."""
-    checker = get_checker(path_str, style)
-
-    return checker.get_root_metrics()
 
 
 class StyleGuideCustomReport(pep8.StandardReport):
@@ -169,7 +165,6 @@ class PyChecker(object):
                 if PyChecker.match_by_reg(f, extension):
                     self.set_current_file(os.path.join(dirpath, f))
                     metrics = self.get_metrics()
-                    print metrics
                     if metrics:
                         file_counter += 1
                         style, docstr, docstr_cover = metrics
@@ -189,3 +184,10 @@ def get_checker(path_str, checker_name="pep8"):
     checkers = dict(pep8=PyChecker,)
 
     return checkers[checker_name](path_str)
+
+
+def check_source(path_str, style="pep8"):
+    """Check all files in setting path, use appropriate checker."""
+    checker = get_checker(path_str, style)
+
+    return checker.get_root_metrics()

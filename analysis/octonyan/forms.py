@@ -5,6 +5,7 @@ from os import path
 from django.conf import settings
 from dulwich.client import HttpGitClient
 from dulwich import repo
+from analysis.tasks import create_repo
 
 
 class InitRepositoryForm(forms.Form):
@@ -43,19 +44,7 @@ class InitRepositoryForm(forms.Form):
 
         repository_url, to_fetch, dir_name = InitRepositoryForm.parse_http_url(
             repository_url)
+        self.cleaned_data['to_fetch'] = to_fetch
+        self.cleaned_data['dir_name'] = dir_name
 
-        pth = path.join(settings.REPOS_PATH, dir_name)
-        if not path.exists(pth):
-            try:
-                local = repo.Repo.init(pth, mkdir=True)
-                client = HttpGitClient(repository_url)
-                remote_refs = client.fetch(
-                    to_fetch, local,
-                    determine_wants=local.object_store.determine_wants_all,
-                )
-                local["HEAD"] = remote_refs["HEAD"]
-                local._build_tree()
-
-            except Exception:
-                rmtree(pth)
-                raise forms.ValidationError("Something went wrong.")
+        return repository_url

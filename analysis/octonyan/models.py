@@ -3,7 +3,8 @@ from django.db import models
 # Create your models here.
 
 
-class Commit(models.Model):
+class Analysis(models.Model):
+    commit_hash = models.CharField(max_length=50)
     repo = models.ForeignKey('Repository')
     update_at = models.DateTimeField()
     pep8_average = models.IntegerField(default=0)
@@ -12,8 +13,7 @@ class Commit(models.Model):
 
 
 class Repository(models.Model):
-    repo_dir_name = models.FilePathField()
+    title = models.CharField(max_length=79)
     url = models.URLField(unique=True)
     user = models.ForeignKey(User)
-    last_cheking_commit = models.ForeignKey(Commit)
     last_update = models.DateTimeField(auto_now=True)
