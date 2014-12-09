@@ -1,135 +1,212 @@
 {% extends 'octonyan/application.html' %}
-  {% block main %}
-    <div class="wrapper container">
-    <header>
+    {% block main %}
+        
+        <!-- Navigaiton bar -->
 
-    </header>
-    <nav class="navbar navbar-default">
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/home/">Home</a></li>
-
-            <li><a href="#modal">Add Repository</a></li>
-            <li><a href="/accounts/logout/">Log out</a></li>
-
-        </ul>
-    </nav>
-    <div class="heading">
-        <h1></h1>
-    </div>
-    <div class="row">
-        <aside class="col-md-7">
-            <div class="panel panel-primary">
-                <div class="panel-heading">List with reps</div>
-
-
-                <ul class="list-group submenu">
-                    <div class="btn-group">
-                        <a href="#modal">
-                            <button class="btn" style="width: 373px;text-align: left">Click and Add Repository</button>
+        <div class="navbar navbar-default">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:void(0)">Octonyan app</a>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
+                            My Repositories 
+                            <b class="caret"></b>
                         </a>
-
-                    </div>
-                    <li class="list-group-item"><a href="/1/">Donec tincidunt laoreet</a></li>
-                    <li class="list-group-item"><a href="/2/">Vestibulum elit</a></li>
-                    <li class="list-group-item"><a href="/3/">Etiam pharetra</a></li>
-                    <li class="list-group-item"><a href="/4/">Phasellus placerat</a></li>
-                    <li class="list-group-item"><a href="/5/">Cras et nisi vitae odio</a></li>
+                        
+                        <ul class="dropdown-menu">
+                            <li class="active"><a href="javascript:void(0)">Current repository</a></li>
+                            <li><a href="javascript:void(0)">Repository#2</a></li>
+                            <li><a href="javascript:void(0)">Repository#3</a></li>
+                            <li><a href="javascript:void(0)">Repository#4</a></li>
+                            <li><a href="javascript:void(0)">Repository#5</a></li>
+                            <li><a href="javascript:void(0)">Repository#6</a></li>
+                        </ul>
+                    </li>
                 </ul>
+                
+                <form class="navbar-form navbar-left">
+                    <input type="text" class="form-control col-lg-8" placeholder="Search repository">
+                </form>
 
-                <div class="remodal" data-remodal-id="modal">
-                    <h1>Add repository</h1>
-
-                    <div class="form-group">
-                        <label for="usr">url</label>
-                        <input type="text" class="form-control" id="usr">
-                    </div>
-
-                    <br>
-                    <a class="remodal-cancel" href="#">Cancel</a>
-                    <a class="remodal-confirm" href="#">OK</a>
-                </div>
-                <div class="remodal" data-remodal-id="login">
-                    <h1>Login</h1>
-
-                    <div class="form-group">
-                        <label for="usr">Login</label>
-                        <input type="text" class="form-control" id="login">
-                        <label for="usr">Password</label>
-                        <input type="text" class="form-control" id="pass">
-                    </div>
-
-                    <br>
-                    <a class="remodal-cancel" href="#">Cancel</a>
-                    <a class="remodal-confirm" href="#">OK</a>
-                </div>
-
-            </div>
-        </aside>
-        <section class="col-md-13">
-            <div class="jumbotron">
-                <blockquote>
-                    <h2 style="text-align: center">
-                        General Stats
-                    </h2>
-                    <small>diagrams</small>
-                </blockquote>
-                <h4 style="padding-right: 10px; padding-left: 10px;">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean non neque ac sem accumsan rhoncus ut
-                    ut turpis. In hac habitasse platea dictumst. Proin eget nisi erat, et feugiat arcu. Duis semper
-                    porttitor lectus, ac pharetra erat imperdiet nec. Morbi interdum felis nulla. Aenean eros orci,
-                    pellentesque sed egestas vitae, auctor aliquam nisi. Nulla nec libero eget sem rutrum iaculis.
-                    Quisque in enim velit, at dignissim est. Nulla ullamcorper, dolor ac pellentesque placerat, justo
-                    tellus gravida erat, vel porttitor libero erat condimentum metus. Donec sodales aliquam orci id
-                    suscipit. Proin sed risus sit amet massa ultrices laoreet quis a erat. Aliquam et metus id erat
-                    vulputate egestas. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-                    mus.
-                </h4>
-
-
-            </div>
-
-
-        </section>
-        <aside class="col-md-4">
-            <div class="panel panel-primary">
-                <div class="panel-heading">Top 3</div>
-
-
-                <ul class="list-group submenu">
-
-                    <li class="list-group-item"><a href="/1/">Donec tincidunt laoreet</a></li>
-                    <li class="list-group-item"><a href="/2/">Vestibulum elit</a></li>
-                    <li class="list-group-item"><a href="/3/">Etiam pharetra</a></li>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:void(0)"><i class="icon mdi-content-add">Add repository</i></a></li>
+                    <li><a href="javascript:void(0)">About</a></li>
+                    <li><a href="/accounts/logout/">Logout</a></li>
                 </ul>
-
             </div>
-        </aside>
-    </div>
-  </div>
-  <footer>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-4 sitemap">
-          <h3>Sitemap</h3>
-
-          <div class="row">
-              <div class="col-md-12">
-                <a href="/home/">Home</a>
-                <a href="/add/">Add Repository</a>
-                <a href="/out/">Log-out</a>
-              </div>
-
-          </div>
         </div>
+        
+        <!-- Main -->
 
-        <div class="col-md-8 footer-logo">
+        <div class="row">
+            
+            <!-- Left content -->
+            
+            <div class="bs-component">
 
-          <p>
-            Copyright &copy; 2014 team "blablabla"
-          </p>
+                <div class="col-lg-6">
+                    <div class="bs-component">
+                        <div class="well">
+                            <div class="bs-component">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading text-center">
+                                        <h3><strong class="text-info">General statistic repository.</strong></h3>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="bs-component">
+                                            
+                                            <div class="bs-component">
+                                                <div class="col-xs-2 col-sm-2 placeholder" id="pep8" data-dimension="180" data-text="88%" data-info="PEP8" data-width="10"
+                                                data-fontsize="18" data-percent="88" data-fgcolor="#61a9dc" data-bgcolor="#eee"
+                                                data-fill="#ddd" data-total="100" data-part="88" data-icon="long-arrow-up"
+                                                data-icon-size="28" data-icon-color="#fff">
+                                             </div>
+                                            </div>
+                                            
+                                            <div class="bs-component">
+                                                <div class="col-xs-2 col-sm-2 placeholder" id="pep257" data-dimension="180" data-text="76%" data-info="PEP257" data-width="10"
+                                                 data-fontsize="18" data-percent="76" data-fgcolor="#61a9dc" data-bgcolor="#eee"
+                                                 data-fill="#ddd" data-total="100" data-part="76" data-icon="long-arrow-up"
+                                                 data-icon-size="28" data-icon-color="#fff">
+                                                 </div>
+                                            </div>
+                                            
+                                            <div class="bs-component">
+                                                <div class="col-xs-2 col-sm-2 placeholder" id="docstring-cover" data-dimension="180" data-text="89%" data-info="Docsting cover" data-width="10"
+                                                     data-fontsize="18" data-percent="89" data-fgcolor="#61a9dc" data-bgcolor="#eee"
+                                                     data-fill="#ddd" data-total="100" data-part="89" data-icon="long-arrow-up"
+                                                     data-icon-size="38" data-icon-color="#fff">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bs-component">
+                        <div class="well">
+                            <div class="bs-component">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading text-center">
+                                        <h3><strong class="text-info">Report.</strong></h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        Здесь место для графика.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>   
+                </div>    
+            </div>
+            
+            <!-- Right content(table) -->
+
+            <div class="bs-component">
+                <div class="col-lg-6">
+                    <div class="bs-component">
+                        <div class="well">
+                        <div class="panel panel-default">
+                            <div class="panel-heading text-center">
+                            <h3><strong class="text-info">Commiters of "Project name."</strong></h3>
+                            </div>
+
+                            <div class="panel-body">
+                                <table class="table table-striped table-hover ">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Commiter</th>
+                                            <th>pep8</th>
+                                            <th>pep257</th>
+                                            <th>Docsting coverage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="success">
+                                            <td>1</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr class="success">
+                                            <td>2</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr class="success">
+                                            <td>3</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>6</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr class="danger">
+                                            <td>7</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr class="danger">
+                                            <td>7</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                        <tr class="danger">
+                                            <td>7</td>
+                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
+                                            <td>90%</td>
+                                            <td>95%</td>
+                                            <td>100%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>    
+                            </div>
+                        </div>
+                    </div>    
+                    </div>
+                
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </footer>
-
-{% endblock %}
+    {% endblock %}
