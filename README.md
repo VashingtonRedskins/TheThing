@@ -3,8 +3,9 @@ pip install -r project_path/requirments.txt
 sudo brew/apt-get install redis
 
 #Run
-1. `redis-server` 
-2. `celery -A analysis worker -l info`
+1. `redis-server`
+2.1 'export DJANGO_SETTINGS_MODULE=analysis.settings' 
+2.  в той же консоли`celery -A analysis worker -l info`
 Должно быть 2 активных процесса 
 3. `python manage.py syncdb`
 4. `python manage.py runserver`
