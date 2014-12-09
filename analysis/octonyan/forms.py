@@ -5,7 +5,6 @@ from os import path
 from django.conf import settings
 from dulwich.client import HttpGitClient
 from dulwich import repo
-from analysis.tasks import create_repo
 
 
 class InitRepositoryForm(forms.Form):
@@ -44,7 +43,6 @@ class InitRepositoryForm(forms.Form):
 
         repository_url, to_fetch, dir_name = InitRepositoryForm.parse_http_url(
             repository_url)
-        self.cleaned_data['to_fetch'] = to_fetch
         self.cleaned_data['dir_name'] = dir_name
-
+        self.cleaned_data['to_fetch'] = to_fetch
         return repository_url

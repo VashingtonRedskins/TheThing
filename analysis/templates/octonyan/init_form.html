@@ -1,5 +1,5 @@
-{% extends 'octonyan/octonyan.html' %}
-{% block mainarea %}  
+{% extends 'octonyan/application.html' %}
+{% block main %}
     <h2>Enter repository url:</h2>
     <form action={% url "octonyan:init_repo"%} method="POST"> {% csrf_token%}
         {% for field in form %}

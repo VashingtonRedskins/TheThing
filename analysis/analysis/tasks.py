@@ -18,8 +18,9 @@ def re_statistic(path):
     """
     return check_source(path)
 
+
 @app.task
-def create_repo(repository_url, dir_name, to_fetch, user= None):
+def create_repo(repository_url, dir_name, to_fetch, user=None):
     """Check on valid state repository url and try download it into."""
 
     SETTINGS_DIR = os.path.dirname(__file__)
@@ -29,6 +30,7 @@ def create_repo(repository_url, dir_name, to_fetch, user= None):
     REPOS_PATH = os.path.join(MEDIA_ROOT, "repos")
     pth = path.join(REPOS_PATH, dir_name)
     if not path.exists(pth):
+        rep = Repository()
         try:
             if not Repository.objects.filter(url=repository_url).exists():
                 local = repo.Repo.init(pth, mkdir=True)
@@ -39,19 +41,24 @@ def create_repo(repository_url, dir_name, to_fetch, user= None):
                 )
                 local["HEAD"] = remote_refs["HEAD"]
                 local._build_tree()
-                rep = Repository()
+                rep.repo_dir_name = pth
                 rep.title = dir_name
                 rep.url = repository_url
                 rep.user = user if user else User.objects.first()
                 rep.save()
-                # analysis = Analysis()
-                # analysis.commit_hash = local['HEAD']
-                # analysis.repo = rep
-                # analysis.pep8_average, analysis.pep257_average, temp = re_statistic(pth)
-                # analysis.commit_author = User.objects.get(id=1)
-                # analysis.save()
-
+                analysis = Analysis()
+                analysis.commit_hash = local['HEAD'].id
+                analysis.repo = rep
+                analysis.pep8_average, analysis.pep257_average, analysis.total_docstr_cover = re_statistic(pth)
+                analysis.pep8_average = int(round(analysis.pep8_average*10000))
+                analysis.pep257_average = int(round(analysis.pep257_average*10000))
+                analysis.total_docstr_cover = int(round(analysis.total_docstr_cover*10000))
+                analysis.commit_author = user if user else User.objects.first()
+                analysis.save()
+                rep.last_cheking_commit = analysis
+                rep.save()
         except Exception:
             rmtree(pth)
+            rep.delete()
             raise RuntimeError("Something went wrong.")
 

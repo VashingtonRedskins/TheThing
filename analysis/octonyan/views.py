@@ -5,20 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
 from django.dispatch import receiver
-
-
 from os import path
 from os import listdir
 from datetime import datetime
-
 from dulwich import repo, diff_tree
 from difflib import unified_diff
 import operator
 
 from octonyan import utils
 from octonyan.forms import InitRepositoryForm
-from analysis.tasks import re_statistic, create_repo
-from octonyan.models import Repository, Analysis
+from analysis.tasks import re_statistic, create_repo, test
 from registration.backends.default.views import ActivationView
 from registration.signals import user_activated
 
@@ -55,6 +51,7 @@ class InitRepositoryView(FormView):
             form.cleaned_data['repository_url'],
             form.cleaned_data['dir_name'], form.cleaned_data['to_fetch'], self.request.user
         )
+        # test.delay()
         return super(InitRepositoryView, self).form_valid(form)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -62,7 +59,6 @@ class InitRepositoryView(FormView):
 
 
 @login_required
-
 def repository(request, repo_dir):
     """View basic commits information"""
     pth = path.join(settings.REPOS_PATH, repo_dir)
@@ -162,6 +158,7 @@ def index(request):
     """View all current repository"""
     r = []
     # call celery method by async
+    # re_statistic.delay()
     if path.exists(settings.REPOS_PATH):
         for d in listdir(settings.REPOS_PATH):
             print d
