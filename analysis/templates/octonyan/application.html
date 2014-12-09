@@ -3,16 +3,38 @@
 	<head>
 		<title>Octonyan app.</title>
 		<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 		<link href="http://fonts.googleapis.com/css?family=Oswald:400,300" rel="stylesheet">
 		{% load staticfiles %}
-		<link rel="stylesheet" type="text/css" href="{% static 'octonyan/css/styles.css' %}"/>
-		<link rel="stylesheet" type="text/css" href="{% static 'jquery/jquery.remodal.css' %}">
-		<script type="text/javascript" src="{% static 'jquery/jquery-2.1.0.min.js' %}"></script>
+		<link href="{% static "octonyan/vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static "octonyan/vendor/material-bootstrap/css/ripples.min.css" %}" rel="stylesheet">
+        <link href="{% static "octonyan/vendor/material-bootstrap/css/material-wfont.min.css" %}" rel="stylesheet">
+        <link href="{% static "octonyan/vendor/jquery-plugins/css/jquery.circliful.css" %}" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
-		{% block main %}
-		{% endblock %}
-		<script type="text/javascript" src="{% static 'jquery/jquery.remodal.js' %}"></script>
-		<script type="text/javascript" src="{% static 'octonyan/js/modal_form.js'%}"></script>
+		<div class="container-fluid">
+			{% block main %}
+
+			{% endblock %}
+		</div>
+		<script src="{% static "octonyan/vendor/jquery/jquery.min.js" %}"></script>
+        <script src="{% static "octonyan/vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+
+        <script src="{% static "octonyan/vendor/material-bootstrap/js/ripples.min.js" %} "></script>
+        <script src="{% static "octonyan/vendor/material-bootstrap/js/material.min.js" %}"></script>
+
+        <script>
+            $(document).ready(function() {
+                $.material.init();
+            });
+        </script>
+        <script src="{% static "octonyan/vendor/jquery-plugins/js/jquery.circliful.min.js" %}"></script>
+		<script>
+        $( document ).ready(function() {
+            $('#pep8').circliful();
+            $('#pep257').circliful();
+            $('#docstring-cover').circliful();
+        });
+        </script>
 	</body>
 </html>

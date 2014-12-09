@@ -21,7 +21,7 @@ urlpatterns = patterns(
         TemplateView.as_view(
             template_name="registration/registration_complete.html")),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',
-        {'next_page': '/accounts/login/'}),
+        {'next_page': '/accounts/login/'}, name="logout"),
     url(r'^accounts/activate/(?P<activation_key>w+)/$',
         OctonyanActivationView.as_view()),
     url(r'^accounts/register',
