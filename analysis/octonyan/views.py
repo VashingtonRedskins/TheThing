@@ -14,7 +14,7 @@ import operator
 
 from octonyan import utils
 from octonyan.forms import InitRepositoryForm
-from analysis.tasks import re_statistic, create_repo, test
+from analysis.tasks import re_statistic, create_repo
 from registration.backends.default.views import ActivationView
 from registration.signals import user_activated
 
