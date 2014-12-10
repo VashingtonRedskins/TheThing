@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 from django.shortcuts import render, render_to_response
 from django.conf import settings
 from django.template import RequestContext
@@ -25,6 +25,11 @@ def login_on_activation(sender, user, request, **kwargs):
     """Logs in the user after activation"""
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
+
+
+def prepare_context(context, user):
+    context["repos"] = get_repos(user)
+    return context
 
 
 class OctonyanActivationView(ActivationView):
@@ -62,9 +67,9 @@ class InitRepositoryView(FormView):
 @login_required
 def index_repository(request):
     """View all current repository"""
-    repos = get_repos(request.user)
+    context = prepare_context({}, request.user)
     #общая статистика ?
-    return render(request, "octonyan/index.html", {"repos": repos})
+    return render(request, "octonyan/index.html", context)
 
 
 @login_required
@@ -78,6 +83,7 @@ def show_repository(request, dir_name):
         "commits": commits,
         "repo": dir_name,
     }
+    context = prepare_context(context, request.user)
 
     return render(
         request,
@@ -121,8 +127,10 @@ def show_commit(request, dir_name, commit_id, files_extenshion=None):
         data.append(
             (item.old.path, item.new.path, block)
         )
+    context = {'data': data}
+    context = prepare_context(context, request.user)
 
-    return render(request, "octonyan/commit_info.html", {"data": data})
+    return render(request, "octonyan/commit_info.html", context)
 
 
 # TODO refactoring and change
@@ -136,9 +144,10 @@ def analysis(request, dir_name, commit_id):
     repository._build_tree()
     analysis.delay(commit_id, dir_name)
     report = utils.check_source(pth)
-
+    context = {"report": report, "repo": dir_name}
+    context = prepare_context(context, request.user)
     return render(request, "octonyan/analysis.html",
-                  {"report": report, "repo": dir_name})
+                  context)
 
 
 def handler404(request):
