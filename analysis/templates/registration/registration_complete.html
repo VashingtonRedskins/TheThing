@@ -1,8 +1,17 @@
 {% extends "registration/form_base.html" %}
+
 {% block form %}
-    <h1>Регистрация завершена</h1>
-    <p>Спасибо за уделённое время. На ваш e-mail отправлен 
-    код подтверждения. Необходимо подтвердить регистрацию, 
-    просто кликнув по указанной ссылке.
-    </p>
+    <div class="panel panel-material-teal">
+        <div class="panel-heading">
+            <p class="text-center lead">Registration complete.</p>
+        </div>
+        <div class="panel-body shadow-z-3">
+            <p class="text-success">
+            Thank you!
+            </p>
+            <p class="text-success">
+            In your e-mail sent to the confirmation code. You must confirm the registration, simply click on the link.
+            </p>
+        </div>
+    </div>
 {% endblock %}

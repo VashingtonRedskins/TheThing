@@ -1,21 +1,70 @@
 {% extends "registration/form_base.html" %}
 
 {% block form %}
-  <form class="form-signin" role="form" method="post" action="/accounts/register">{% csrf_token %}
-    <h2 class="form-signin-heading">Please sign in <a href="/accounts/login">Login</a></h2>
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4><p class="text-center text-info">User registration</p></h4></div>
+        <div class="panel-body shadow-z-4">
+            <form class="form-horizontal" method="post" action='/accounts/register/'>{% csrf_token %}
+                <fieldset>
+                    {% if form.errors %}
+                        <div class="form-group">
+                            {% for field in form %}
+                                {% for error in field.errors %}
 
-    <label for="inputLogin" class="sr-only">Register login</label>
-    <input type="text" id="inputLogin" class="form-control" name="username" placeholder="Login" required autofocus>
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                         <p class="text-danger">
+                                            <span class="label label-danger">{{field.name}}</span>
+                                            {{error|escape }}
+                                         </p>
+                                    </div>
 
-    <label for="inputEmail" class="sr-only">Email</label>
-    <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Email" required autofocus>
+                                {% endfor %}
 
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input type="password" id="inputPassword" class="form-control" name="password1" placeholder="Password" required>
+                                {% for error in form.non_field_errors %}
 
-    <label for="confirmPassword" class="sr-only">Confirm password</label>
-    <input type="password" id="confirmPassword" class="form-control" name="password2" placeholder="Confirm password" required>
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                        <p class="text-danger">
+                                            <span class="label label-danger">no field</span>
+                                            {{error|escape }}
+                                         </p>
+                                    </div>
 
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
-  </form>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <input type="text" class="form-control" name="username" id="inputLogin" placeholder="Login">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Email">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <input type="password" class="form-control" name="password1" id="inputPassword" placeholder="Password">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <input type="password" class="form-control" name="password2" id="confirmPassword" placeholder="Confirm password">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <button class="btn btn-material-teal" type="submit">Sign up</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 {% endblock %}

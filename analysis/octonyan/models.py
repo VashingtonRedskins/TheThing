@@ -5,11 +5,14 @@ from django.db import models
 
 class Commit(models.Model):
     repo = models.ForeignKey('Repository')
-    commit_hash = models.CharField(max_length=250, unique=True)
+    id_commit = models.CharField(max_length=250)
     update_at = models.DateTimeField(auto_now=True)
     pep8_average = models.IntegerField(default=0)
     pep257_average = models.IntegerField(default=0)
     total_docstr_cover = models.IntegerField(default=0)
+    msg = models.CharField(max_length=255, default='')
+    author = models.CharField(max_length=255, default='')
+    create_date = models.DateTimeField(null=True)
 
 
 class Repository(models.Model):
@@ -23,3 +26,9 @@ class Repository(models.Model):
 class UserRepository(models.Model):
     repo = models.ForeignKey(Repository)
     user = models.ForeignKey(User)
+
+
+class CommitterRepository(models.Model):
+    committer = models.CharField(max_length=255)
+    count = models.IntegerField(default=0)
+    repo = models.ForeignKey(Repository)
