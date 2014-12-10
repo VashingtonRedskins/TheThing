@@ -1,6 +1,6 @@
-{% extends "octonyan/octonyan.html" %}
+{% extends "octonyan/application.html" %}
 
-{% block mainarea %}
+{% block main %}
 	<div class="commit_info">
 		{% for old_path, new_path, changes in data %}
 			<h4>Old path: {{old_path}}</h4>

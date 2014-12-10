@@ -13,9 +13,9 @@ from difflib import unified_diff
 
 from octonyan import utils
 from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
-    get_comm_by_rep, get_committer_by_rep
+    get_comm_by_rep, get_committer_by_rep, get_commit_by_rep_commit_id
 from octonyan.forms import InitRepositoryForm
-from analysis.tasks import re_statistic, create_repo, analysis
+from analysis.tasks import create_repo, analysis
 from registration.backends.default.views import ActivationView
 from registration.signals import user_activated
 
@@ -94,6 +94,7 @@ def show_commit(request, dir_name, commit_id, files_extenshion=None):
     data -- include blocks code of each modify files.
 
     """
+    commit = get_commit_by_rep_commit_id(dir_name, commit_id)
     pth = path.join(settings.REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
     data = []
