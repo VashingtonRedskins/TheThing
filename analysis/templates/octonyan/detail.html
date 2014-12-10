@@ -27,23 +27,23 @@
 				<th>Commiter</th>
 				<th>Count of commit</th>
 			</tr>
-			{% for committer, count in committers%}
+			{% for committer in committers%}
 		  	<tr>
 		  		<td>
-		  			{{committer}}
+		  			{{committer.committer}}
 		  		</td>
-		  		<td>{{count}}</td>
+		  		<td>{{committer.count}}</td>
 		  	</tr>
 			{% endfor %}
 		</table>
 		<h3>Short Histrory</h3>
-		{% for id_commit, author, date, msg in history %}
+		{% for commit in commits %}
 			<div class="commit">
-				<div>Commit: <a href="{% url "octonyan:commit_view" repo id_commit %} ">{{id_commit}}</a></div>
-				<a href="{% url "octonyan:analysis" repo id_commit %}">view analysis</a>
-				<div>Author: {{author}}</div>
-				<div>Date: {{date}}</div>
-				<div>Message:{{msg}}</div>
+				<div>Commit: <a href="{% url "octonyan:commit_view" repo commit.id_commit %} ">{{commit.id_commit}}</a></div>
+				<a href="{% url "octonyan:analysis" repo commit.id_commit %}">view analysis</a>
+				<div>Author: {{commit.author}}</div>
+				<div>Date: {{commit.create_date}}</div>
+				<div>Message:{{commit.msg}}</div>
 			</div>
 		{% endfor %}
 {% endblock %}

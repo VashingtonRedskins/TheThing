@@ -1,10 +1,11 @@
-from octonyan.models import Commit, Repository, UserRepository
+from octonyan.models import Commit, Repository, UserRepository, \
+    CommitterRepository
 
 __author__ = 'akhmetov'
 
 
 def get_cmmt_by_hash(hash):
-    cmmt = Commit.objects.filter(commit_hash=hash).first()
+    cmmt = Commit.objects.filter(id_commit=hash).first()
     if cmmt:
         return cmmt
     return None
@@ -21,4 +22,13 @@ def get_by_dir_name(repo_dir):
 def get_repos(user):
     return [ur.repo for ur in UserRepository.objects.filter(
         user=user).select_related('repo').only('repo')]
+
+
+def get_comm_by_rep(dir_name):
+    return Commit.objects.filter(repo__dir_name=dir_name)
+
+
+def get_committer_by_rep(dir_name):
+    return CommitterRepository.objects.filter(
+        repo__dir_name=dir_name).order_by('-count')
 

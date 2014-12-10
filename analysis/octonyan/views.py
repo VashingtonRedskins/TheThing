@@ -8,13 +8,12 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import login
 from django.dispatch import receiver
 from os import path
-from datetime import datetime
 from dulwich import repo, diff_tree
 from difflib import unified_diff
-import operator
 
 from octonyan import utils
-from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos
+from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
+    get_comm_by_rep, get_committer_by_rep
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import re_statistic, create_repo, analysis
 from registration.backends.default.views import ActivationView
@@ -52,7 +51,6 @@ class InitRepositoryView(FormView):
             form.cleaned_data['dir_name'], form.cleaned_data['to_fetch'],
             self.request.user
         )
-        # test.delay()
         return super(InitRepositoryView, self).form_valid(form)
 
     @method_decorator(login_required)
@@ -72,33 +70,12 @@ def index_repository(request):
 @login_required
 def show_repository(request, dir_name):
     """View basic commits information"""
-    pth = path.join(settings.REPOS_PATH, dir_name)
-    repository = repo.Repo(pth)
-    walker = repository.get_graph_walker()
-    committers = dict()
-    history = []
-    cset = walker.next()
-
-    while cset is not None:
-        commit = repository.get_object(cset)
-        committers[commit.author] = \
-            committers.get(commit.author, 0) + 1
-        data = (
-            commit.id,
-            commit.author,
-            datetime.fromtimestamp(commit.commit_time).strftime(
-                "%a %b %d %H:%M:%S %Y"),
-            commit.message,
-        )
-        history.append(data)
-        cset = walker.next()
-
-    sorted_commiters = sorted(
-        committers.items(), key=operator.itemgetter(1), reverse=True)
+    commits = get_comm_by_rep(dir_name)
+    committers = get_committer_by_rep(dir_name)
 
     context = {
-        "committers": sorted_commiters,
-        "history": history,
+        "committers": committers,
+        "commits": commits,
         "repo": dir_name,
     }
 
@@ -156,7 +133,7 @@ def analysis(request, dir_name, commit_id):
     # and bytestring
     repository["HEAD"] = commit_id.encode('latin-1')
     repository._build_tree()
-    # analysis.delay(commit_id, pth, repo_dir, request.user)
+    analysis.delay(commit_id, dir_name)
     report = utils.check_source(pth)
 
     return render(request, "octonyan/analysis.html",
