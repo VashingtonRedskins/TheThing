@@ -3,33 +3,58 @@
   <head>
     <title>Auth</title>
     {% load staticfiles %}
-    <link rel="stylesheet" 
-        type="text/css" 
-        href="{% static "bootstrap/bootstrap.min.css" %}"/>
-    <link rel="stylesheet" 
-        type="text/css" 
-        href="{% static "bootstrap/signin.css" %}"/>
-    <script type="text/javascript" src="{% static 'jquery/jquery-2.1.0.min.js' %}"></script>
-    <script type="text/javascript" src="{% static "bootstrap/bootstrap.min.js"%}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link href="http://fonts.googleapis.com/css?family=Oswald:400,300" rel="stylesheet"> -->
+    <link href="{% static "octonyan/vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "octonyan/vendor/material-bootstrap/css/ripples.min.css" %}" rel="stylesheet">
+    <link href="{% static "octonyan/vendor/material-bootstrap/css/material-wfont.min.css" %}" rel="stylesheet">
   </head>
     
   <body>
-    <div class="container">
-      {% if form.errors %}
-        {% for field in form %}
-          {% for error in field.errors %}
-            <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
-          {% endfor %}
-        {% endfor %}
-        
-        {% for error in form.non_field_errors %}
-          <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
-        {% endfor %}
-      {% endif %}
-      
-      {% block form %}
-        
-      {% endblock %}
-    </div>    
+    <div class="container-fluid">
+
+      <div class="navbar navbar-material-bluegrey">
+        <div class="navbar-header">
+            <a href="javascript:void(0)" class="btn btn-link disabled">Octonyan</a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+    
+        <div class="navbar-collapse collapse navbar-responsive-collapse">
+            
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:void(0)">About</a></li>
+                <li><a href="/accounts/register/">Sign up</a></li>
+                <li><a href="/accounts/login/">Log in</a></li>
+            </ul>
+        </div>
+      </div> 
+
+      <div class="row">
+        <div class="pages col-xs-4 col-xs-offset-4">
+          <div class="bs-component">
+
+            {% block form %}
+              
+            {% endblock %}
+
+          </div>
+        </div>
+      </div>
+    </div>  
+    <script src="{% static "octonyan/vendor/jquery/jquery.min.js" %}"></script>
+    <script src="{% static "octonyan/vendor/bootstrap/js/bootstrap.min.js" %}"></script>
+
+    <script src="{% static "octonyan/vendor/material-bootstrap/js/ripples.min.js" %} "></script>
+    <script src="{% static "octonyan/vendor/material-bootstrap/js/material.min.js" %}"></script>
+
+    <script>
+      $(document).ready(function() {
+        $.material.init();
+      });
+    </script>  
 </body>
 </html>
