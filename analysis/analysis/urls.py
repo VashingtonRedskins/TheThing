@@ -8,7 +8,7 @@ from django.views.generic.base import RedirectView
 
 from registration.forms import RegistrationFormUniqueEmail
 from registration.backends.default.views import RegistrationView
-from octonyan.views import OctonyanActivationView, handler404
+from octonyan.views import OctonyanActivationView, handler404, handler500
 
 
 urlpatterns = patterns(
@@ -33,6 +33,7 @@ urlpatterns = patterns(
         include('octonyan.urls', namespace="octonyan")),
 )
 handler404 = handler404
+handler500 = handler500
 
 
 from django.conf import settings

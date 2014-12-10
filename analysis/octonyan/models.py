@@ -13,7 +13,7 @@ class Commit(models.Model):
 
 
 class Repository(models.Model):
-    title = models.CharField(max_length=100)
+    dir_name = models.CharField(max_length=100)
     repo_dir_name = models.FilePathField()
     url = models.URLField(unique=True)
     last_check = models.ForeignKey(Commit, null=True)

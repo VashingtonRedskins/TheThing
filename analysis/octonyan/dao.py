@@ -14,8 +14,8 @@ def is_rep(repo_url):
     return Repository.objects.filter(url=repo_url).exists()
 
 
-def get_by_title(repo_dir):
-    return Repository.objects.filter(title=repo_dir).first()
+def get_by_dir_name(repo_dir):
+    return Repository.objects.filter(dir_name=repo_dir).first()
 
 
 def get_repos(user):

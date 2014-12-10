@@ -1,3 +1,4 @@
+#coding: utf-8
 from django.shortcuts import render, render_to_response
 from django.conf import settings
 from django.template import RequestContext
@@ -7,14 +8,13 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import login
 from django.dispatch import receiver
 from os import path
-from os import listdir
 from datetime import datetime
 from dulwich import repo, diff_tree
 from difflib import unified_diff
 import operator
 
 from octonyan import utils
-from octonyan.dao import get_cmmt_by_hash, get_by_title
+from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import re_statistic, create_repo, analysis
 from registration.backends.default.views import ActivationView
@@ -60,10 +60,19 @@ class InitRepositoryView(FormView):
         return super(FormView, self).dispatch(*args, **kwargs)
 
 
+# TODO change when will complete registration
 @login_required
-def repository(request, repo_dir):
+def index_repository(request):
+    """View all current repository"""
+    repos = get_repos(request.user)
+    #общая статистика ?
+    return render(request, "octonyan/index.html", {"repos": repos})
+
+
+@login_required
+def show_repository(request, dir_name):
     """View basic commits information"""
-    pth = path.join(settings.REPOS_PATH, repo_dir)
+    pth = path.join(settings.REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
     walker = repository.get_graph_walker()
     committers = dict()
@@ -90,7 +99,7 @@ def repository(request, repo_dir):
     context = {
         "committers": sorted_commiters,
         "history": history,
-        "repo": repo_dir,
+        "repo": dir_name,
     }
 
     return render(
@@ -102,13 +111,13 @@ def repository(request, repo_dir):
 
 # TODO refactoring and change
 @login_required
-def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
+def show_commit(request, dir_name, commit_id, files_extenshion=None):
     """Return changes make in current commit
 
     data -- include blocks code of each modify files.
 
     """
-    pth = path.join(settings.REPOS_PATH, repo_dir)
+    pth = path.join(settings.REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
     data = []
     # used encode('latin-1') below to solve some problem with unicode
@@ -140,8 +149,8 @@ def detail_commit_view(request, repo_dir, commit_id, files_extenshion=None):
 
 # TODO refactoring and change
 @login_required
-def analysis(request, repo_dir, commit_id):
-    pth = path.join(settings.REPOS_PATH, repo_dir)
+def analysis(request, dir_name, commit_id):
+    pth = path.join(settings.REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
     # used encode('latin-1') below to solve some problem with unicode
     # and bytestring
@@ -151,21 +160,7 @@ def analysis(request, repo_dir, commit_id):
     report = utils.check_source(pth)
 
     return render(request, "octonyan/analysis.html",
-                  {"report": report, "repo": repo_dir})
-
-
-# TODO change when will complete registration
-@login_required
-def index(request):
-    """View all current repository"""
-    r = []
-    # call celery method by async
-    # re_statistic.delay()
-    if path.exists(settings.REPOS_PATH):
-        for d in listdir(settings.REPOS_PATH):
-            print d
-            r.append(d)
-    return render(request, "octonyan/index.html", {"repos": r})
+                  {"report": report, "repo": dir_name})
 
 
 def handler404(request):
@@ -175,8 +170,8 @@ def handler404(request):
     return response
 
 
-# def handler500(request):
-# response = render_to_response('500.html', {},
-#                                   context_instance=RequestContext(request))
-#     response.status_code = 500
-#     return response
+def handler500(request):
+    response = render_to_response('500.html', {},
+                                  context_instance=RequestContext(request))
+    response.status_code = 500
+    return response

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from os import path
 from dulwich import repo
 from dulwich.client import HttpGitClient
-from octonyan.dao import is_rep, get_by_title
+from octonyan.dao import is_rep, get_by_dir_name
 from octonyan.models import Repository, Commit, UserRepository
 from shutil import rmtree
 
@@ -37,7 +37,7 @@ def create_analysis(commit_hash, rep):
 
 @app.task
 def analysis(commit_hash, repo_dir, user):
-    rep = get_by_title(repo_dir)
+    rep = get_by_dir_name(repo_dir)
     if rep:
         rep.last_cheking_commit = create_analysis(commit_hash, rep)
         rep.save()
@@ -66,7 +66,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 local["HEAD"] = remote_refs["HEAD"]
                 local._build_tree()
                 rep.repo_dir_name = pth
-                rep.title = dir_name
+                rep.dir_name = dir_name
                 rep.url = repository_url
                 rep.save()
                 UserRepository(repo=rep, user=user).save()
@@ -77,4 +77,4 @@ def create_repo(repository_url, dir_name, to_fetch, user):
             rep.delete()
             raise RuntimeError("Something went wrong.")
     else:
-        UserRepository(repo=get_by_title(dir_name), user=user).save()
+        UserRepository(repo=get_by_dir_name(dir_name), user=user).save()
