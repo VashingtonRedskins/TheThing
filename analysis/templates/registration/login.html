@@ -1,0 +1,15 @@
+{% extends "registration/form_base.html" %}
+
+{% block form %}
+  <form class="form-signin" role="form" method="post" action="/accounts/login/"> {% csrf_token %}
+    <h2 class="form-signin-heading">Please sign in <a href="/accounts/register">Log up</a></h2>
+    
+    <label for="inputLogin" class="sr-only">Login</label>
+    <input type="text" id="inputLogin" class="form-control" name="username" placeholder="Login" required autofocus required>
+
+    <label for="inputPassword" class="sr-only">Password</label>
+    <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password" required>
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+  </form>
+{% endblock %}

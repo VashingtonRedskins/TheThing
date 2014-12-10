@@ -1,0 +1,32 @@
+{% extends "octonyan/octonyan.html" %}
+
+{% block mainarea %}
+    <a href="{% url "octonyan:repository" repo %}">Back to info.</a>
+    
+    {% for filename, dirpath, docs, count, total_docs, style,total_style  in report %}
+        <ul>
+            <li><h2>{{dirpath}}</h3></li>
+            <li><h3>Module: {{filename}}</h4></li>
+            <li>
+                <ul>
+                    {% for prop, num in count.items %}
+                        <li><h4>{{prop}}:{{num}}</h4></li>
+                    {% endfor %}
+                    <h4>PEP257</h4>
+                    {% for er in docs %}
+                        <li>{{er}}</li>
+                    {% endfor %}
+                    <h4>Total: {{total_docs}}</h4>
+                </ul>
+                <ul>
+                    <h4>PEP8</h4>
+                    {% for er in style %}
+                        <li>{{er}}</li>
+                    {% endfor %}
+                    <h4>Total: {{total_style}}</h4>
+                </ul>
+            </li>
+        </ul>
+
+    {% endfor %}
+{% endblock %}

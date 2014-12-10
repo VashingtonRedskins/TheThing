@@ -1,0 +1,49 @@
+{% extends 'octonyan/octonyan.html' %}
+{% block mainarea%}
+<style>
+		body {
+			font: verdana;
+		}
+		.commit {
+			margin-bottom: 10px;
+			border-top: 1px solid black;
+		}
+
+		table {
+			margin: 30px 20px;
+			padding: 5px;
+			border: solid black 2px;
+		}
+		
+		tr {
+			padding: 5px;
+			text-align: center;
+		}
+	</style>
+		</br>
+		<a href="{%url "octonyan:index" %}">Back</a>
+		<table>
+			<tr>
+				<th>Commiter</th>
+				<th>Count of commit</th>
+			</tr>
+			{% for committer, count in committers%}
+		  	<tr>
+		  		<td>
+		  			{{committer}}
+		  		</td>
+		  		<td>{{count}}</td>
+		  	</tr>
+			{% endfor %}
+		</table>
+		<h3>Short Histrory</h3>
+		{% for id_commit, author, date, msg in history %}
+			<div class="commit">
+				<div>Commit: <a href="{% url "octonyan:commit_view" repo id_commit %} ">{{id_commit}}</a></div>
+				<a href="{% url "octonyan:analysis" repo id_commit %}">view analysis</a>
+				<div>Author: {{author}}</div>
+				<div>Date: {{date}}</div>
+				<div>Message:{{msg}}</div>
+			</div>
+		{% endfor %}
+{% endblock %}
