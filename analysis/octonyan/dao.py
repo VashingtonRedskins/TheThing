@@ -32,3 +32,7 @@ def get_committer_by_rep(dir_name):
     return CommitterRepository.objects.filter(
         repo__dir_name=dir_name).order_by('-count')
 
+
+def get_commit_by_rep_commit_id(dir_name, commit_id):
+    return Commit.objects.filter(repo__dir_name=dir_name, id_commit=commit_id)
+

@@ -30,18 +30,17 @@ def re_statistic(path):
     return check_source(path)
 
 
-def create_commit(id_commit, rep, is_analysis=True, msg=None, author=None,
+def create_commit(id_commit, rep, msg=None, author=None,
                   create_date=None):
     commit = Commit()
     commit.id_commit = id_commit
     commit.repo = rep
-    if is_analysis:
-        commit.pep8_average, commit.pep257_average, commit.total_docstr_cover = re_statistic(
-            rep.repo_dir_name)
-        commit.pep8_average = int(round(commit.pep8_average * 10000))
-        commit.pep257_average = int(round(commit.pep257_average * 10000))
-        commit.total_docstr_cover = int(
-            round(commit.total_docstr_cover * 10000))
+    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover = re_statistic(
+        rep.repo_dir_name)
+    commit.pep8_average = int(round(commit.pep8_average * 10000))
+    commit.pep257_average = int(round(commit.pep257_average * 10000))
+    commit.total_docstr_cover = int(
+        round(commit.total_docstr_cover * 10000))
     commit.msg = msg or ''
     commit.author = author or ''
     commit.create_date = create_date
@@ -81,7 +80,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 UserRepository(repo=rep, user=user).save()
                 rep.last_check = create_commit(local['HEAD'].id, rep)
                 rep.save()
-                create_analysis(dir_name, ignore_list=[local['HEAD'].id, ])
+                create_analysis(dir_name)
         except Exception:
             rmtree(pth)
             rep.delete()
@@ -93,9 +92,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
 
 
 @app.task
-def create_analysis(dir_name, ignore_list=None):
-    if not ignore_list:
-        ignore_list = []
+def create_analysis(dir_name):
     rep = get_by_dir_name(dir_name)
     pth = path.join(REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
@@ -107,12 +104,11 @@ def create_analysis(dir_name, ignore_list=None):
         commit = repository.get_object(cset)
         committers[commit.author] = committers.get(commit.author, 0) + 1
         cset = walker.next()
-        if not (commit.id in ignore_list):
-            create_commit(
-                commit.id, rep, is_analysis=False, msg=commit.message,
-                author=commit.author,
-                create_date=datetime.fromtimestamp(commit.commit_time)
-            )
+        create_commit(
+            commit.id, rep, msg=commit.message,
+            author=commit.author,
+            create_date=datetime.fromtimestamp(commit.commit_time)
+        )
 
 
     for committer, count in committers.iteritems():
