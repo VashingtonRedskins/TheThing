@@ -3,12 +3,14 @@ from django.contrib.auth.models import User
 from os import path
 from dulwich import repo
 from dulwich.client import HttpGitClient
-from octonyan.models import Repository, Analysis
+from octonyan.dao import is_rep, get_by_title
+from octonyan.models import Repository, Commit, UserRepository
 from shutil import rmtree
 
 __author__ = 'akhmetov'
 from analysis.celery import app
 from octonyan.utils import check_source
+
 
 @app.task
 def re_statistic(path):
@@ -19,8 +21,30 @@ def re_statistic(path):
     return check_source(path)
 
 
+def create_analysis(commit_hash, rep):
+    commit = Commit()
+    commit.commit_hash = commit_hash
+    commit.repo = rep
+    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover = re_statistic(
+        rep.repo_dir_name)
+    commit.pep8_average = int(round(commit.pep8_average * 10000))
+    commit.pep257_average = int(round(commit.pep257_average * 10000))
+    commit.total_docstr_cover = int(
+        round(commit.total_docstr_cover * 10000))
+    commit.save()
+    return commit
+
+
 @app.task
-def create_repo(repository_url, dir_name, to_fetch, user=None):
+def analysis(commit_hash, repo_dir, user):
+    rep = get_by_title(repo_dir)
+    if rep:
+        rep.last_cheking_commit = create_analysis(commit_hash, rep)
+        rep.save()
+
+
+@app.task
+def create_repo(repository_url, dir_name, to_fetch, user):
     """Check on valid state repository url and try download it into."""
 
     SETTINGS_DIR = os.path.dirname(__file__)
@@ -32,7 +56,7 @@ def create_repo(repository_url, dir_name, to_fetch, user=None):
     if not path.exists(pth):
         rep = Repository()
         try:
-            if not Repository.objects.filter(url=repository_url).exists():
+            if not is_rep(repository_url):
                 local = repo.Repo.init(pth, mkdir=True)
                 client = HttpGitClient(repository_url)
                 remote_refs = client.fetch(
@@ -44,21 +68,13 @@ def create_repo(repository_url, dir_name, to_fetch, user=None):
                 rep.repo_dir_name = pth
                 rep.title = dir_name
                 rep.url = repository_url
-                rep.user = user if user else User.objects.first()
                 rep.save()
-                analysis = Analysis()
-                analysis.commit_hash = local['HEAD'].id
-                analysis.repo = rep
-                analysis.pep8_average, analysis.pep257_average, analysis.total_docstr_cover = re_statistic(pth)
-                analysis.pep8_average = int(round(analysis.pep8_average*10000))
-                analysis.pep257_average = int(round(analysis.pep257_average*10000))
-                analysis.total_docstr_cover = int(round(analysis.total_docstr_cover*10000))
-                analysis.commit_author = user if user else User.objects.first()
-                analysis.save()
-                rep.last_cheking_commit = analysis
+                UserRepository(repo=rep, user=user).save()
+                rep.last_check = create_analysis(local['HEAD'].id, rep)
                 rep.save()
         except Exception:
             rmtree(pth)
             rep.delete()
             raise RuntimeError("Something went wrong.")
-
+    else:
+        UserRepository(repo=get_by_title(dir_name), user=user).save()

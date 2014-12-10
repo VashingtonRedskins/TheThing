@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.conf import settings
+from django.template import RequestContext
 from django.views.generic.edit import FormView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -13,8 +14,9 @@ from difflib import unified_diff
 import operator
 
 from octonyan import utils
+from octonyan.dao import get_cmmt_by_hash, get_by_title
 from octonyan.forms import InitRepositoryForm
-from analysis.tasks import re_statistic, create_repo
+from analysis.tasks import re_statistic, create_repo, analysis
 from registration.backends.default.views import ActivationView
 from registration.signals import user_activated
 
@@ -27,7 +29,6 @@ def login_on_activation(sender, user, request, **kwargs):
 
 
 class OctonyanActivationView(ActivationView):
-
     """ Override success_url by ActivationView. """
 
     def get_success_url(self, request, user):
@@ -36,7 +37,6 @@ class OctonyanActivationView(ActivationView):
 
 
 class InitRepositoryView(FormView):
-
     """Getting form to add new repository"""
 
     template_name = "octonyan/init_form.html"
@@ -49,10 +49,12 @@ class InitRepositoryView(FormView):
         """
         create_repo.delay(
             form.cleaned_data['repository_url'],
-            form.cleaned_data['dir_name'], form.cleaned_data['to_fetch'], self.request.user
+            form.cleaned_data['dir_name'], form.cleaned_data['to_fetch'],
+            self.request.user
         )
         # test.delay()
         return super(InitRepositoryView, self).form_valid(form)
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(FormView, self).dispatch(*args, **kwargs)
@@ -145,7 +147,7 @@ def analysis(request, repo_dir, commit_id):
     # and bytestring
     repository["HEAD"] = commit_id.encode('latin-1')
     repository._build_tree()
-    print pth
+    # analysis.delay(commit_id, pth, repo_dir, request.user)
     report = utils.check_source(pth)
 
     return render(request, "octonyan/analysis.html",
@@ -164,3 +166,17 @@ def index(request):
             print d
             r.append(d)
     return render(request, "octonyan/index.html", {"repos": r})
+
+
+def handler404(request):
+    response = render_to_response('octonyan/404.html', {},
+                                  context_instance=RequestContext(request))
+    response.status_code = 404
+    return response
+
+
+# def handler500(request):
+# response = render_to_response('500.html', {},
+#                                   context_instance=RequestContext(request))
+#     response.status_code = 500
+#     return response
