@@ -20,14 +20,11 @@
                             My Repositories 
                             <b class="caret"></b>
                         </a>
-                        
                         <ul class="dropdown-menu">
-                            <li class="active"><a href="javascript:void(0)">Current repository</a></li>
-                            <li><a href="javascript:void(0)">Repository#2</a></li>
-                            <li><a href="javascript:void(0)">Repository#3</a></li>
-                            <li><a href="javascript:void(0)">Repository#4</a></li>
-                            <li><a href="javascript:void(0)">Repository#5</a></li>
-                            <li><a href="javascript:void(0)">Repository#6</a></li>
+                        {% for rep in repos  %}
+                            <li class="active"><a href="{% url 'octonyan:repository' rep.dir_name %}">
+                                {{ rep.dir_name }} </a></li>
+                        {% endfor %}
                         </ul>
                     </li>
                 </ul>
@@ -37,7 +34,7 @@
                 </form>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="javascript:void(0)"><i class="icon mdi-content-add">Add repository</i></a></li>
+                    <li><a href="{% url 'octonyan:init_repo' %}"><i class="icon mdi-content-add">Add repository</i></a></li>
                     <li><a href="javascript:void(0)">About</a></li>
                     <li><a href="/accounts/logout/">Logout</a></li>
                 </ul>
