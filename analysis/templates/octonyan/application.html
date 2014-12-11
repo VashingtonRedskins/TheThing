@@ -9,7 +9,6 @@
 		<link href="{% static "octonyan/vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
         <link href="{% static "octonyan/vendor/material-bootstrap/css/ripples.min.css" %}" rel="stylesheet">
         <link href="{% static "octonyan/vendor/material-bootstrap/css/material-wfont.min.css" %}" rel="stylesheet">
-        <link href="{% static "octonyan/vendor/jquery-plugins/css/jquery.circliful.css" %}" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div class="container-fluid">
@@ -26,7 +25,7 @@
                     </div>
 
                     <div class="navbar-collapse collapse navbar-responsive-collapse">
-                        <ul class="nav navbar-nav">
+                    <!-- <ul class="nav navbar-nav">
                             <li class="dropdown">
                                 <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
                                     My Repositories
@@ -39,11 +38,12 @@
                                 {% endfor %}
                                 </ul>
                             </li>
-                        </ul>
+                        </ul> -->
 
-                        <form class="navbar-form navbar-left">
+                        <!-- <form class="navbar-form navbar-left">
                             <input type="text" class="form-control col-lg-8" placeholder="Search repository">
                         </form>
+                        -->
 
                         <ul class="nav navbar-nav navbar-right">
                             <li><a href="{% url 'octonyan:init_repo' %}"><i class="icon mdi-content-add">Add repository</i></a></li>
@@ -61,18 +61,21 @@
 
         <script src="{% static "octonyan/vendor/material-bootstrap/js/ripples.min.js" %} "></script>
         <script src="{% static "octonyan/vendor/material-bootstrap/js/material.min.js" %}"></script>
+        
+        <script>
+            $(".dial").knob({
+                'change':function(e){
+                        console.log(e);
+                    }
+                }
+            );
+        </script>
 
         <script>
             $(document).ready(function() {
                 $.material.init();
             });
         </script>
-        <script src="{% static "octonyan/vendor/jquery-plugins/js/jquery.circliful.min.js" %}"></script><script>
-        $( document ).ready(function() {
-            $('#pep8').circliful();
-            $('#pep257').circliful();
-            $('#docstring-cover').circliful();
-        });
         </script>
 	</body>
 </html>

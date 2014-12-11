@@ -6,17 +6,23 @@ from django.conf import settings
 from django.template import RequestContext
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, FormMixin
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
 from django.dispatch import receiver
+
 from os import path
 from dulwich import repo, diff_tree
 from difflib import unified_diff
+
+from octonyan.models import Repository
 from octonyan import utils
-from octonyan.dao import get_repos, get_comm_by_rep,\
-    get_committer_by_rep, get_commit_by_rep_commit_id
+from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
+    get_comm_by_rep, get_committer_by_rep, get_commit_by_rep_commit_id, \
+    get_last_upd_repo
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import create_repo, analysis
 from registration.backends.default.views import ActivationView
@@ -56,6 +62,7 @@ class LoginRequiredView(View, TemplateResponseMixin):
 
 
 class InitRepositoryView(FormView):
+
     """Getting form to add new repository"""
 
     template_name = "octonyan/init_form.html"
@@ -91,7 +98,6 @@ class IndexRepository(LoginRequiredView, FormMixin):
         # context['form'] = self.get_form(self.get_form_class(), **kwargs)
         return context
 
-
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.get_form_class())
         if form.is_valid():
@@ -126,8 +132,21 @@ def show_repository(request, dir_name):
     )
 
 
+class RepositoriesListView(ListView):
+
+    model = Repository
+    context_object_name = "repos"
+    template_name = "octonyan/index.html"
+    paginate_by = 20
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RepositoriesListView, self).\
+            dispatch(request, *args, **kwargs)
+
+
 class ShowRepository(LoginRequiredView, FormMixin):
-    template_name = 'octonyan/detail.html'
+    template_name = 'octonyan/index.html'
     # form_class = CreateForm
     success_url = reverse_lazy("octonyan:index")
 
@@ -136,11 +155,18 @@ class ShowRepository(LoginRequiredView, FormMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ShowRepository, self).get_context_data(**kwargs)
-        context['commits'] = get_comm_by_rep(self.kwargs['dir_name'])
-        context['committers'] = get_committer_by_rep(self.kwargs['dir_name'])
-        context['dir_name'] = self.kwargs['dir_name']
-        return context
+        print self.object
+        if 'dir_name' in self.kwargs.keys():
+            dir_name = self.kwargs['dir_name']
+        else:
+            dir_name = get_last_upd_repo(self.object)
 
+        if dir_name:
+            # context['commits'] = get_comm_by_rep(dir_name)
+            context['committers'] = get_committer_by_rep(dir_name)
+            context['dir_name'] = dir_name
+
+        return context
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.get_form_class())
