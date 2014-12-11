@@ -1,8 +1,12 @@
-#coding: utf-8
+# coding: utf-8
+from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.conf import settings
 from django.template import RequestContext
-from django.views.generic.edit import FormView
+from django.views.generic import View
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.edit import FormView, FormMixin
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
@@ -27,12 +31,29 @@ def login_on_activation(sender, user, request, **kwargs):
     login(request, user)
 
 
+def prepare_context(context, user):
+    context["repos"] = get_repos(user)
+    return context
+
+
 class OctonyanActivationView(ActivationView):
     """ Override success_url by ActivationView. """
 
     def get_success_url(self, request, user):
         """ Redirect to dashboard after activation."""
         return "/octonyan/"
+
+
+class LoginRequiredView(View, TemplateResponseMixin):
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoginRequiredView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(LoginRequiredView, self).get_context_data(**kwargs)
+        context['repos'] = get_repos(self.request.user)
+        return context
 
 
 class InitRepositoryView(FormView):
@@ -58,13 +79,32 @@ class InitRepositoryView(FormView):
         return super(FormView, self).dispatch(*args, **kwargs)
 
 
-# TODO change when will complete registration
-@login_required
-def index_repository(request):
-    """View all current repository"""
-    repos = get_repos(request.user)
-    #общая статистика ?
-    return render(request, "octonyan/index.html", {"repos": repos})
+class IndexRepository(LoginRequiredView, FormMixin):
+    template_name = 'octonyan/index.html'
+    # form_class = CreateForm
+    success_url = reverse_lazy("octonyan:index")
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data(), **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexRepository, self).get_context_data(**kwargs)
+        # context['form'] = self.get_form(self.get_form_class(), **kwargs)
+        return context
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.get_form_class())
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_invalid(self, form):
+        return self.get(self.request)
 
 
 @login_required
@@ -78,12 +118,43 @@ def show_repository(request, dir_name):
         "commits": commits,
         "repo": dir_name,
     }
+    context = prepare_context(context, request.user)
 
     return render(
         request,
         "octonyan/detail.html",
         context
     )
+
+
+class ShowRepository(LoginRequiredView, FormMixin):
+    template_name = 'octonyan/detail.html'
+    # form_class = CreateForm
+    success_url = reverse_lazy("octonyan:index")
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data(), **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ShowRepository, self).get_context_data(**kwargs)
+        context['commits'] = get_comm_by_rep(self.kwargs['dir_name'])
+        context['committers'] = get_committer_by_rep(self.kwargs['dir_name'])
+        context['dir_name'] = self.kwargs['dir_name']
+        return context
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.get_form_class())
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        return HttpResponseRedirect(self.success_url)
+
+    def form_invalid(self, form):
+        return self.get(self.request)
 
 
 # TODO refactoring and change
@@ -121,8 +192,10 @@ def show_commit(request, dir_name, commit_id, files_extenshion=None):
         data.append(
             (item.old.path, item.new.path, block)
         )
+    context = {'data': data}
+    context = prepare_context(context, request.user)
 
-    return render(request, "octonyan/commit_info.html", {"data": data})
+    return render(request, "octonyan/commit_info.html", context)
 
 
 # TODO refactoring and change
@@ -136,9 +209,10 @@ def analysis(request, dir_name, commit_id):
     repository._build_tree()
     analysis.delay(commit_id, dir_name)
     report = utils.check_source(pth)
-
+    context = {"report": report, "repo": dir_name}
+    context = prepare_context(context, request.user)
     return render(request, "octonyan/analysis.html",
-                  {"report": report, "repo": dir_name})
+                  context)
 
 
 def handler404(request):

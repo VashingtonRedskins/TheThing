@@ -3,7 +3,7 @@ from octonyan import views
 
 urlpatterns = patterns(
     "",
-    url(r"^$", views.index_repository, name='index'),
+    url(r"^$", views.IndexRepository.as_view(), name='index'),
     url(r"^add/repo$", views.InitRepositoryView.as_view(), name="init_repo"),
     url(r"^repo/(?P<dir_name>\w[\w-]+)$",
         views.show_repository, name="repository"),

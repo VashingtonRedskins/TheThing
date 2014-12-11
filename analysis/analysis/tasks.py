@@ -75,7 +75,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 local._build_tree()
                 rep.repo_dir_name = pth
                 rep.dir_name = dir_name
-                rep.url = repository_url
+                rep.url = '/'.join(repository_url, dir_name)
                 rep.save()
                 UserRepository(repo=rep, user=user).save()
                 rep.last_check = create_commit(local['HEAD'].id, rep)
