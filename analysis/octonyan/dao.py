@@ -19,6 +19,10 @@ def get_by_dir_name(repo_dir):
     return Repository.objects.filter(dir_name=repo_dir).first()
 
 
+def get_head_commit(rep):
+    return Commit.objects.filter(repo=rep).first()
+
+
 def get_repos(user):
     return [ur.repo for ur in UserRepository.objects.filter(
         user=user).select_related('repo').only('repo')]
@@ -40,5 +44,5 @@ def get_commit_by_rep_commit_id(dir_name, commit_id):
 
 
 def get_last_upd_repo(user):
-    return UserRepository.objects.filter(user=user)\
-        .order_by('-last_update')[:1]
+    return UserRepository.objects.filter(user=user) \
+               .order_by('-last_update')[:1]

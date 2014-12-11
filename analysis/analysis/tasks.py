@@ -2,7 +2,7 @@ import os
 from os import path
 from dulwich import repo
 from dulwich.client import HttpGitClient
-from octonyan.dao import is_rep, get_by_dir_name
+from octonyan.dao import is_rep, get_by_dir_name, get_head_commit
 from octonyan.models import Repository, Commit, UserRepository, \
     CommitterRepository
 from shutil import rmtree
@@ -30,11 +30,11 @@ def re_statistic(path):
 
 
 def create_commit(id_commit, rep, msg=None, author=None,
-                  create_date=None):
+                  create_date=None, another_commit=None):
     commit = Commit()
     commit.id_commit = id_commit
     commit.repo = rep
-    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover =\
+    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover = \
         re_statistic(rep.repo_dir_name)
     commit.pep8_average = int(round(commit.pep8_average * 10000))
     commit.pep257_average = int(round(commit.pep257_average * 10000))
@@ -43,6 +43,14 @@ def create_commit(id_commit, rep, msg=None, author=None,
     commit.msg = msg or ''
     commit.author = author or ''
     commit.create_date = create_date
+    if another_commit:
+        commit.pep8 = commit.pep8_average - another_commit.pep8_average
+        commit.pep257 = commit.pep257_average - another_commit.pep257_average
+        commit.total = commit.total_docstr_cover - another_commit.total_docstr_cover
+    else:
+        commit.pep8 = commit.pep8_average
+        commit.pep257 = commit.pep257_average
+        commit.total = commit.total_docstr_cover
     commit.save()
     return commit
 
@@ -79,7 +87,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 rep.save()
                 flag = 1
                 UserRepository(repo=rep, user=user).save()
-                rep.last_check = create_commit(local['HEAD'].id, rep)
+                rep.last_check = get_head_commit(rep)
                 rep.save()
                 create_analysis(dir_name)
         except Exception:
@@ -101,6 +109,7 @@ def create_analysis(dir_name):
     walker = repository.get_graph_walker()
     committers = {}
     cset = walker.next()
+    cmmt = None
     while cset is not None:
         commit = repository.get_object(cset)
         repository["HEAD"] = cset.encode('latin-1')
@@ -119,10 +128,11 @@ def create_analysis(dir_name):
         committers[commit.author]["doccover"] += doccover
 
         cset = walker.next()
-        create_commit(
+        cmmt = create_commit(
             commit.id, rep, msg=commit.message,
             author=commit.author,
-            create_date=datetime.fromtimestamp(commit.commit_time)
+            create_date=datetime.fromtimestamp(commit.commit_time),
+            another_commit=cmmt
         )
 
     for committer, stat in committers.items():
