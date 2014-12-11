@@ -14,10 +14,9 @@ from django.dispatch import receiver
 from os import path
 from dulwich import repo, diff_tree
 from difflib import unified_diff
-
 from octonyan import utils
-from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
-    get_comm_by_rep, get_committer_by_rep, get_commit_by_rep_commit_id
+from octonyan.dao import get_repos, get_comm_by_rep,\
+    get_committer_by_rep, get_commit_by_rep_commit_id
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import create_repo, analysis
 from registration.backends.default.views import ActivationView
