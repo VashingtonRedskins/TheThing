@@ -9,7 +9,6 @@
 		<link href="{% static "octonyan/vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
         <link href="{% static "octonyan/vendor/material-bootstrap/css/ripples.min.css" %}" rel="stylesheet">
         <link href="{% static "octonyan/vendor/material-bootstrap/css/material-wfont.min.css" %}" rel="stylesheet">
-        <link href="{% static "octonyan/vendor/jquery-plugins/css/jquery.circliful.css" %}" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div class="container-fluid">
@@ -61,18 +60,21 @@
 
         <script src="{% static "octonyan/vendor/material-bootstrap/js/ripples.min.js" %} "></script>
         <script src="{% static "octonyan/vendor/material-bootstrap/js/material.min.js" %}"></script>
+        
+        <script>
+            $(".dial").knob({
+                'change':function(e){
+                        console.log(e);
+                    }
+                }
+            );
+        </script>
 
         <script>
             $(document).ready(function() {
                 $.material.init();
             });
         </script>
-        <script src="{% static "octonyan/vendor/jquery-plugins/js/jquery.circliful.min.js" %}"></script><script>
-        $( document ).ready(function() {
-            $('#pep8').circliful();
-            $('#pep257').circliful();
-            $('#docstring-cover').circliful();
-        });
         </script>
 	</body>
 </html>
