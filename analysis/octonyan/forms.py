@@ -1,10 +1,6 @@
 from django import forms
 import re
-from shutil import rmtree
-from os import path
-from django.conf import settings
-from dulwich.client import HttpGitClient
-from dulwich import repo
+import os
 
 
 class InitRepositoryForm(forms.Form):
@@ -24,11 +20,8 @@ class InitRepositoryForm(forms.Form):
         r = re.compile("/[\w-]+.git")
         url = r.search(repo_url)
         if url:
-            url = url.group()
-            to_fetch = url.lstrip('/')
-            dir_name = to_fetch.replace(".git", "")
-            repo_url = repo_url.split("/")[:-1]
-            repo_url = "/".join(repo_url)
+            repo_url, to_fetch = os.path.split(repo_url)
+            dir_name, ext = os.path.splitext(to_fetch)
 
             return (repo_url, to_fetch, dir_name)
 

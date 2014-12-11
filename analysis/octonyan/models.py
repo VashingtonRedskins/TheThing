@@ -32,3 +32,6 @@ class CommitterRepository(models.Model):
     committer = models.CharField(max_length=255)
     count = models.IntegerField(default=0)
     repo = models.ForeignKey(Repository)
+    pep8_average = models.IntegerField(default=0)
+    pep257_average = models.IntegerField(default=0)
+    docstr_cover_average = models.IntegerField(default=0)

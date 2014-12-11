@@ -35,8 +35,8 @@ def create_commit(id_commit, rep, msg=None, author=None,
     commit = Commit()
     commit.id_commit = id_commit
     commit.repo = rep
-    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover = re_statistic(
-        rep.repo_dir_name)
+    commit.pep8_average, commit.pep257_average, commit.total_docstr_cover =\
+        re_statistic(rep.repo_dir_name)
     commit.pep8_average = int(round(commit.pep8_average * 10000))
     commit.pep257_average = int(round(commit.pep257_average * 10000))
     commit.total_docstr_cover = int(
@@ -83,7 +83,6 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 create_analysis(dir_name)
         except Exception:
             rmtree(pth)
-            rep.delete()
             raise RuntimeError("Something went wrong.")
     else:
         rep = get_by_dir_name(dir_name)
@@ -99,10 +98,23 @@ def create_analysis(dir_name):
     walker = repository.get_graph_walker()
     committers = dict()
     cset = walker.next()
-
     while cset is not None:
         commit = repository.get_object(cset)
-        committers[commit.author] = committers.get(commit.author, 0) + 1
+        rep["HEAD"] = cset
+        rep._build_tree()
+        if committers[commit.author]:
+            committers[commit.author] = {
+                "count": 0,
+                "pep8": 0.0,
+                "pep257": 0.0,
+                "doccover": 0.0
+            }
+        pep8_av, pep257_av, doccover = check_source(pth)
+        committers[commit.author]["count"] += 1
+        committers[commit.author]["pep8"] += pep8_av
+        committers[commit.author]["pep257"] += pep257_av
+        committers[commit.author]["doccover"] += doccover
+
         cset = walker.next()
         create_commit(
             commit.id, rep, msg=commit.message,
@@ -110,9 +122,13 @@ def create_analysis(dir_name):
             create_date=datetime.fromtimestamp(commit.commit_time)
         )
 
-
-    for committer, count in committers.iteritems():
-        CommitterRepository(committer=committer, count=count, repo=rep).save()
-
-
-
+    for committer, stat in committers.items():
+        count = stat["count"]
+        CommitterRepository(
+            committer=committer,
+            count=count,
+            repo=rep,
+            pep8_average=round(stat["pep8"] / count, 3),
+            pep257_average=round(stat["pep257"] / count, 3),
+            docstr_cover_average=round(stat["doccover"] / count, 3),
+        ).save()

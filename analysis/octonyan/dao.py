@@ -30,8 +30,15 @@ def get_comm_by_rep(dir_name):
 
 def get_committer_by_rep(dir_name):
     return CommitterRepository.objects.filter(
-        repo__dir_name=dir_name).order_by('-count')
+        repo__dir_name=dir_name).order_by("-pep8_average",
+                                          "-pep257_average",
+                                          "-docstr_cover_average")
 
 
 def get_commit_by_rep_commit_id(dir_name, commit_id):
     return Commit.objects.filter(repo__dir_name=dir_name, id_commit=commit_id)
+
+
+def get_last_upd_repo(user):
+    return UserRepository.objects.filter(user=user)\
+        .order_by('-last_update')[:1]

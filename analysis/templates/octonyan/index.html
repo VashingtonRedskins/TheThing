@@ -1,157 +1,25 @@
 {% extends 'octonyan/application.html' %}
     {% block main %}
-        
-
-        
-        <!-- Main -->
-
         <div class="row">
             
-            <!-- Left content -->
-            
             <div class="bs-component">
 
-                <div class="col-lg-6">
-                            <div class="bs-component">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading text-center">
-                                        <h5><strong class="text-info">General statistic repository.</strong></h5>
-                                    </div>
-                                    <div class="panel-body shadow-z-3">
-                                    
-                                                
-                                            <div class="bs-component">
-                                                <div class="col-xs-4 col-sm-4 placeholder">
-                                                    <div class="well">
-                                                        place to circle diagram
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="bs-component">
-                                                <div class="col-xs-4 col-sm-4 placeholder">
-                                                    <div class="well">
-                                                        place to circle diagram
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="bs-component">
-                                                <div class="col-xs-4 col-sm-4 placeholder">
-                                                    <div class="well">
-                                                        place to circle diagram
-                                                    </div>
-                                                </div>
-                                            </div>
-                                
-                                    
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bs-component">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading text-center">
-                                        <h5><strong class="text-info">Report.</strong></h5>
-                                    </div>
-                                    <div class="panel-body shadow-z-3">
-                                        Здесь место для графика.
-                                    </div>
-                                </div>
-                            </div>
-                </div>    
-            </div>
-            
-            <!-- Right content(table) -->
-
-            <div class="bs-component">
-                <div class="col-lg-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading text-center">
-                            <h5><strong class="text-info">Commiters of "Project name."</strong></h5>
-                            </div>
-
-                            <div class="panel-body shadow-z-3">
-                                <table class="table table-striped table-hover ">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Commiter</th>
-                                            <th>pep8</th>
-                                            <th>pep257</th>
-                                            <th>Docsting coverage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="success">
-                                            <td>1</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr class="success">
-                                            <td>2</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr class="success">
-                                            <td>3</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>6</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr class="danger">
-                                            <td>7</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr class="danger">
-                                            <td>7</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr class="danger">
-                                            <td>7</td>
-                                            <td>Ivanov Ivan&ltivanov.ii@gmail.com&gt</td>
-                                            <td>90%</td>
-                                            <td>95%</td>
-                                            <td>100%</td>
-                                        </tr>
-                                    </tbody>
-                                </table>    
+                <div class="col-lg-6 col-lg-offset-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><h4><p class="text-center text-info">Your repositories</p></h4></div>
+                        <div class="panel-body shadow-z-4">
+                            <div class="col-lg-4 col-lg-offset-4">
+                            {% if not repos %}
+                                <p>
+                                    Not upload repositories. You can add its, click add repository.
+                                </p>
+                            {% endif %}
+                            {% for repo in repos %}
+                                <a href="{% url "octonyan:repository" repo.dir_name %}">{{ repo.dir_name }}</a>
+                            {% endfor %}
                             </div>
                         </div>
-                    
-                
+                    </div>
                 </div>
             </div>
         </div>

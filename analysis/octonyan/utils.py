@@ -84,27 +84,29 @@ class PyChecker(object):
         """Implementaion of counting logical line of code(lloc)."""
         docstr = False
         count_logic_line = 0
-        f = open(self.current_file)
-        lines = [line.strip() for line in f]
-        for line in lines:
-            if line == "" \
-                    or PyChecker.match_by_reg(line, "pass") \
-                    or line.startswith("#") \
-                    or docstr and not (line.startswith('\"\"\"')
-                                       or line.startswith("\'\'\'")) \
-                    or (line.startswith("'''") and line.endswith("\'\'\'")
-                        and len(line) > 3) \
-                    or (line.startswith('"""') and line.endswith('\"\"\"')
-                        and len(line) > 3):
-                continue
+        try:
+            f = open(self.current_file)
+            lines = [line.strip() for line in f]
+            for line in lines:
+                if line == "" \
+                        or PyChecker.match_by_reg(line, "pass") \
+                        or line.startswith("#") \
+                        or docstr and not (line.startswith('\"\"\"')
+                                           or line.startswith("\'\'\'")) \
+                        or (line.startswith("'''") and line.endswith("\'\'\'")
+                            and len(line) > 3) \
+                        or (line.startswith('"""') and line.endswith('\"\"\"')
+                            and len(line) > 3):
+                    continue
 
-            elif line.startswith('\"\"\"') or line.startswith("\'\'\'"):
-                docstr = not docstr
-                continue
+                elif line.startswith('\"\"\"') or line.startswith("\'\'\'"):
+                    docstr = not docstr
+                    continue
 
-            else:
-                count_logic_line += 1
-        f.close()
+                else:
+                    count_logic_line += 1
+        finally:
+            f.close()
 
         return count_logic_line
 
