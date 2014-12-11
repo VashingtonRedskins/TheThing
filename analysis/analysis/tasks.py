@@ -1,5 +1,4 @@
 import os
-from django.contrib.auth.models import User
 from os import path
 from dulwich import repo
 from dulwich.client import HttpGitClient
@@ -61,6 +60,7 @@ def create_repo(repository_url, dir_name, to_fetch, user):
     """Check on valid state repository url and try download it into."""
 
     pth = path.join(REPOS_PATH, dir_name)
+    flag = 0
     if not path.exists(pth):
         rep = Repository()
         try:
@@ -75,14 +75,17 @@ def create_repo(repository_url, dir_name, to_fetch, user):
                 local._build_tree()
                 rep.repo_dir_name = pth
                 rep.dir_name = dir_name
-                rep.url = '/'.join(repository_url, dir_name)
+                rep.url = '/'.join((repository_url, dir_name))
                 rep.save()
+                flag = 1
                 UserRepository(repo=rep, user=user).save()
                 rep.last_check = create_commit(local['HEAD'].id, rep)
                 rep.save()
                 create_analysis(dir_name)
         except Exception:
             rmtree(pth)
+            if flag == 1:
+                rep.delete()
             raise RuntimeError("Something went wrong.")
     else:
         rep = get_by_dir_name(dir_name)
@@ -96,13 +99,13 @@ def create_analysis(dir_name):
     pth = path.join(REPOS_PATH, dir_name)
     repository = repo.Repo(pth)
     walker = repository.get_graph_walker()
-    committers = dict()
+    committers = {}
     cset = walker.next()
     while cset is not None:
         commit = repository.get_object(cset)
-        rep["HEAD"] = cset
-        rep._build_tree()
-        if committers[commit.author]:
+        repository["HEAD"] = cset.encode('latin-1')
+        repository._build_tree()
+        if not commit.author in committers.keys():
             committers[commit.author] = {
                 "count": 0,
                 "pep8": 0.0,
