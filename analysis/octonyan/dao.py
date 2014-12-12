@@ -1,7 +1,33 @@
+import json
 from octonyan.models import Commit, Repository, UserRepository, \
     CommitterRepository
 
 __author__ = 'akhmetov'
+
+
+def get_statistic_json(repo):
+    lol = {
+        'rep': {
+            'pasan': [],
+            'total': {}
+        }
+    }
+    for author in Commit.objects.values('author').filter(repo=repo):
+        data = {
+            'name': author['author'],
+            'commit': Commit.objects.values(
+                'pep8_average', 'pep257_average',
+                'total_docstr_cover', 'create_date'
+            ).filter(author=author['author'], repo=repo)
+        }
+        lol['rep']['pasan'].append(data)
+    last_check = {
+        'pep8': repo.last_check.pep8_average,
+        'pep257': repo.last_check.pep257_average,
+        'total': repo.last_check.total_docstr_cover,
+    }
+    lol['rep']['total'] = last_check
+    return json.dumps(lol, ensure_ascii=False)
 
 
 def get_cmmt_by_hash(hash):
