@@ -22,7 +22,7 @@ from octonyan.models import Repository
 from octonyan import utils
 from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
     get_comm_by_rep, get_committer_by_rep, get_commit_by_rep_commit_id, \
-    get_last_upd_repo
+    get_last_upd_repo, get_statistic_json
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import create_repo, analysis
 from registration.backends.default.views import ActivationView
@@ -117,11 +117,13 @@ def show_repository(request, dir_name):
     """View basic commits information"""
     commits = get_comm_by_rep(dir_name)
     committers = get_committer_by_rep(dir_name)
+    rep = get_statistic_json(dir_name)
 
     context = {
         "committers": committers,
         "commits": commits,
         "repo": dir_name,
+        "rep": rep,
     }
     context = prepare_context(context, request.user)
 

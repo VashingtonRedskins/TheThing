@@ -61,7 +61,10 @@
 
         <script src="{% static "octonyan/vendor/material-bootstrap/js/ripples.min.js" %} "></script>
         <script src="{% static "octonyan/vendor/material-bootstrap/js/material.min.js" %}"></script>
-        
+{#        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>#}
+         <script type="text/javascript" src="{% static 'octonyan/script.js' %}"></script>
+        <script src="{% static 'octonyan/highcharts.js' %}"></script>
+        <script src="{% static 'octonyan/exporting.js' %}"></script>
         <script>
             $(".dial").knob({
                 'change':function(e){
@@ -75,7 +78,6 @@
             $(document).ready(function() {
                 $.material.init();
             });
-        </script>
         </script>
 	</body>
 </html>

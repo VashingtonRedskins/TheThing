@@ -1,6 +1,10 @@
 {% extends 'octonyan/application.html' %}
     {% block main %}
-        
+        <script type="application/javascript">
+        console.log('123');
+        var rep={{ rep|safe }}
+
+        </script>
 
         
         <!-- Main -->
@@ -55,7 +59,10 @@
                                         <h5><strong class="text-info">Report.</strong></h5>
                                     </div>
                                     <div class="panel-body shadow-z-3">
-                                        Здесь место для графика.
+                                        <div id="total" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                                        <div id="pep8" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                                        <div id="pep257" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                                        <div id="docstring" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                                     </div>
                                 </div>
                             </div>
