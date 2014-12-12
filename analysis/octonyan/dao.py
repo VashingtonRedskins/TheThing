@@ -1,33 +1,38 @@
 import json
 from octonyan.models import Commit, Repository, UserRepository, \
     CommitterRepository
+from django.core.serializers.json import DjangoJSONEncoder
 
 __author__ = 'akhmetov'
 
 
-def get_statistic_json(repo):
-    lol = {
-        'rep': {
-            'pasan': [],
-            'total': {}
-        }
-    }
-    for author in Commit.objects.values('author').filter(repo=repo):
-        data = {
-            'name': author['author'],
-            'commit': Commit.objects.values(
+def get_statistic_json(dir_name):
+    repo = get_repo_by_dir_name(dir_name)
+    rep = []
+    for author in Commit.objects.values('author').filter(repo=repo).distinct():
+
+        commits = []
+        for commit in Commit.objects.values(
                 'pep8_average', 'pep257_average',
                 'total_docstr_cover', 'create_date'
-            ).filter(author=author['author'], repo=repo)
-        }
-        lol['rep']['pasan'].append(data)
-    last_check = {
-        'pep8': repo.last_check.pep8_average,
-        'pep257': repo.last_check.pep257_average,
-        'total': repo.last_check.total_docstr_cover,
-    }
-    lol['rep']['total'] = last_check
-    return json.dumps(lol, ensure_ascii=False)
+        ).filter(author=author['author'], repo=repo):
+            commits.append({
+                'pep8': commit['pep8_average'],
+                'pep257': commit['pep257_average'],
+                'docstring': commit['total_docstr_cover'],
+                'date': commit['create_date'].strftime('%Y-%m-%dT%H:%M:%S')
+
+            })
+        data = {'name': author['author'], 'commit': commits}
+
+        rep.append(data)
+    # lol['rep']['total'] = last_check
+    # print json.dumps(lol, ensure_ascii=False)
+    return json.dumps(rep, cls=DjangoJSONEncoder)
+
+
+def get_repo_by_dir_name(dir_name):
+    return Repository.objects.filter(dir_name=dir_name).first()
 
 
 def get_cmmt_by_hash(hash):
