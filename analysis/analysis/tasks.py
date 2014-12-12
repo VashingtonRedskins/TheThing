@@ -141,7 +141,7 @@ def create_analysis(dir_name):
             committer=committer,
             count=count,
             repo=rep,
-            pep8_average=round(stat["pep8"] / count, 3),
-            pep257_average=round(stat["pep257"] / count, 3),
-            docstr_cover_average=round(stat["doccover"] / count, 3),
+            pep8_average=round((stat["pep8"] * 10000) / count, 3),
+            pep257_average=round((stat["pep257"] * 10000) / count, 3),
+            docstr_cover_average=round((stat["doccover"] * 10000) / count, 3),
         ).save()

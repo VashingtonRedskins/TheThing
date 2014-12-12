@@ -145,42 +145,6 @@ class RepositoriesListView(ListView):
             dispatch(request, *args, **kwargs)
 
 
-class ShowRepository(LoginRequiredView, FormMixin):
-    template_name = 'octonyan/index.html'
-    # form_class = CreateForm
-    success_url = reverse_lazy("octonyan:index")
-
-    def get(self, request, *args, **kwargs):
-        return self.render_to_response(self.get_context_data(), **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ShowRepository, self).get_context_data(**kwargs)
-        print self.object
-        if 'dir_name' in self.kwargs.keys():
-            dir_name = self.kwargs['dir_name']
-        else:
-            dir_name = get_last_upd_repo(self.object)
-
-        if dir_name:
-            # context['commits'] = get_comm_by_rep(dir_name)
-            context['committers'] = get_committer_by_rep(dir_name)
-            context['dir_name'] = dir_name
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(self.get_form_class())
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        return HttpResponseRedirect(self.success_url)
-
-    def form_invalid(self, form):
-        return self.get(self.request)
-
 
 # TODO refactoring and change
 @login_required
