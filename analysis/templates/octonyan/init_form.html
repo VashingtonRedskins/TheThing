@@ -1,16 +1,57 @@
 {% extends 'octonyan/application.html' %}
 {% block main %}
-    <h2>Enter repository url:</h2>
-    <form action={% url "octonyan:init_repo"%} method="POST"> {% csrf_token%}
-        {% for field in form %}
-            {{field}}
-            {{field.errors}}
-            <input type="submit" value="Init">
-        {% endfor %}
-    </form>
- 	{% for error in form.non_field_errors %}
-        <div class="alert alert-error">
-            <strong>{{ error|escape }}</strong>
+
+    <div class="pages col-xs-4 col-xs-offset-4">
+          <div class="bs-component">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4><p class="text-center text-info">Adding repository</p></h4></div>
+                <div class="panel-body shadow-z-4">
+                    <form class="form-horizontal" method="post" {% url "octonyan:init_repo"%}>{% csrf_token %}
+                        <fieldset>
+                            {% if form.errors %}
+                                <div class="form-group">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+
+                                            <div class="col-lg-10 col-lg-offset-1">
+                                                 <p class="text-danger">
+                                                    <span class="label label-danger">{{field.name}}</span>
+                                                    {{error|escape }}
+                                                 </p>
+                                            </div>
+
+                                        {% endfor %}
+
+                                        {% for error in form.non_field_errors %}
+
+                                            <div class="col-lg-10 col-lg-offset-1">
+                                                <p class="text-danger">
+                                                    <span class="label label-danger">no field</span>
+                                                    {{error|escape }}
+                                                 </p>
+                                            </div>
+
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="form-group">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <input type="text" class="form-control" name="repository_url" id="inputRepoUrl" placeholder="Repository url">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <button class="btn btn-material-teal" type="submit">Add</button>
+                                </div>
+                            </div>
+                            
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
         </div>
-    {% endfor %}
+    </div>
 {% endblock %}

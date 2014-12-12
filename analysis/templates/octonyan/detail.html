@@ -1,49 +1,102 @@
 {% extends 'octonyan/application.html' %}
-{% block main%}
-<style>
-		body {
-			font: verdana;
-		}
-		.commit {
-			margin-bottom: 10px;
-			border-top: 1px solid black;
-		}
+    {% block main %}
+        
 
-		table {
-			margin: 30px 20px;
-			padding: 5px;
-			border: solid black 2px;
-		}
-		
-		tr {
-			padding: 5px;
-			text-align: center;
-		}
-	</style>
-		</br>
-		<a href="{%url "octonyan:index" %}">Back</a>
-		<table>
-			<tr>
-				<th>Commiter</th>
-				<th>Count of commit</th>
-			</tr>
-			{% for committer in committers%}
-		  	<tr>
-		  		<td>
-		  			{{committer.committer}}
-		  		</td>
-		  		<td>{{committer.count}}</td>
-		  	</tr>
-			{% endfor %}
-		</table>
-		<h3>Short Histrory</h3>
-		{% for commit in commits %}
-			<div class="commit">
-				<div>Commit: <a href="{% url "octonyan:commit_view" repo commit.id_commit %} ">{{commit.id_commit}}</a></div>
-				<a href="{% url "octonyan:analysis" repo commit.id_commit %}">view analysis</a>
-				<div>Author: {{commit.author}}</div>
-				<div>Date: {{commit.create_date}}</div>
-				<div>Message:{{commit.msg}}</div>
-			</div>
-		{% endfor %}
-{% endblock %}
+        
+        <!-- Main -->
+
+        <div class="row">
+            
+            <!-- Left content -->
+            
+            <div class="bs-component">
+
+                <div class="col-lg-6">
+                            <div class="bs-component">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading text-center">
+                                        <h5><strong class="text-info">General statistic repository.</strong></h5>
+                                    </div>
+                                    <div class="panel-body shadow-z-3">
+                                    
+                                                
+                                            <div class="bs-component">
+                                                <div class="col-xs-4 col-sm-4 placeholder">
+                                                    <div class="well">
+                                                        place to circle diagram
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="bs-component">
+                                                <div class="col-xs-4 col-sm-4 placeholder">
+                                                    <div class="well">
+                                                        place to circle diagram
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="bs-component">
+                                                <div class="col-xs-4 col-sm-4 placeholder">
+                                                    <div class="well">
+                                                        place to circle diagram
+                                                    </div>
+                                                </div>
+                                            </div>
+                                
+                                    
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bs-component">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading text-center">
+                                        <h5><strong class="text-info">Report.</strong></h5>
+                                    </div>
+                                    <div class="panel-body shadow-z-3">
+                                        Здесь место для графика.
+                                    </div>
+                                </div>
+                            </div>
+                </div>    
+            </div>
+            
+            <!-- Right content(table) -->
+
+            <div class="bs-component">
+                <div class="col-lg-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading text-center">
+                            <h5><strong class="text-info">Commiters of {{ dir_name }}</strong></h5>
+                            </div>
+
+                            <div class="panel-body shadow-z-3">
+                                <table class="table table-striped table-hover ">
+                                    <thead>
+                                        <tr>
+                                            <th>Commiter</th>
+                                            <th>pep8</th>
+                                            <th>pep257</th>
+                                            <th>Docsting coverage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for committer in committers%}
+                                            <tr>
+                                                <td>{{ committer.committer }}</td>
+                                                <td>{{ committer.pep8_average }}</td>
+                                                <td>{{ committer.pep257_average }}</td>
+                                                <td>{{ committer.docstr_cover_average}}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>    
+                            </div>
+                        </div>
+                    
+                
+                </div>
+            </div>
+        </div>
+    {% endblock %}
