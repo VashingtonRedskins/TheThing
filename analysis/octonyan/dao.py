@@ -76,4 +76,4 @@ def get_commit_by_rep_commit_id(dir_name, commit_id):
 
 def get_last_upd_repo(user):
     return UserRepository.objects.filter(user=user) \
-               .order_by('-last_update')[:1]
+        .order_by('-last_update')[:1]

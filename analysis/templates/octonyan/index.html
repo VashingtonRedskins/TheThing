@@ -9,14 +9,21 @@
                         <div class="panel-heading"><h4><p class="text-center text-info">Your repositories</p></h4></div>
                         <div class="panel-body shadow-z-4">
                             <div class="col-lg-4 col-lg-offset-4">
-                            {% if not repos %}
-                                <p>
-                                    Not upload repositories. You can add its, click add repository.
-                                </p>
-                            {% endif %}
-                            {% for repo in repos %}
-                                <a href="{% url "octonyan:repository" repo.dir_name %}">{{ repo.dir_name }}</a>
-                            {% endfor %}
+                                {% if not repos %}
+                                    <p>
+                                        Not upload repositories. You can add its, click add repository.
+                                    </p>
+                                {% endif %}
+                                <ul class="list-group">
+                                    {% for repo in repos %}
+                                        <li class="list-group-item">
+                                            <a href="{% url "octonyan:repository" repo.dir_name %}">
+                                                {{ repo.dir_name }}
+                                            </a>
+                                        </li>
+                                        
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                     </div>

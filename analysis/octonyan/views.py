@@ -15,14 +15,13 @@ from django.contrib.auth import login
 from django.dispatch import receiver
 
 from os import path
-from dulwich import repo, diff_tree
-from difflib import unified_diff
+from dulwich import repo
+# from difflib import unified_diff
 
 from octonyan.models import Repository
 from octonyan import utils
-from octonyan.dao import get_cmmt_by_hash, get_by_dir_name, get_repos, \
-    get_comm_by_rep, get_committer_by_rep, get_commit_by_rep_commit_id, \
-    get_last_upd_repo, get_statistic_json
+from octonyan.dao import get_repos, get_comm_by_rep, \
+    get_committer_by_rep, get_statistic_json
 from octonyan.forms import InitRepositoryForm
 from analysis.tasks import create_repo, analysis
 from registration.backends.default.views import ActivationView
@@ -53,7 +52,8 @@ class LoginRequiredView(View, TemplateResponseMixin):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredView, self).dispatch(request, *args, **kwargs)
+        return super(LoginRequiredView, self).\
+            dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(LoginRequiredView, self).get_context_data(**kwargs)
@@ -85,36 +85,9 @@ class InitRepositoryView(FormView):
         return super(FormView, self).dispatch(*args, **kwargs)
 
 
-class IndexRepository(LoginRequiredView, FormMixin):
-    template_name = 'octonyan/index.html'
-    # form_class = CreateForm
-    success_url = reverse_lazy("octonyan:index")
-
-    def get(self, request, *args, **kwargs):
-        return self.render_to_response(self.get_context_data(), **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(IndexRepository, self).get_context_data(**kwargs)
-        # context['form'] = self.get_form(self.get_form_class(), **kwargs)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(self.get_form_class())
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        return HttpResponseRedirect(self.success_url)
-
-    def form_invalid(self, form):
-        return self.get(self.request)
-
-
 @login_required
-def show_repository(request, dir_name):
-    """View basic commits information"""
+def get_statistic_repository(request, dir_name):
+    """Getting appropriate information about repository."""
     commits = get_comm_by_rep(dir_name)
     committers = get_committer_by_rep(dir_name)
     rep = get_statistic_json(dir_name)
@@ -125,6 +98,7 @@ def show_repository(request, dir_name):
         "repo": dir_name,
         "rep": rep,
     }
+
     context = prepare_context(context, request.user)
 
     return render(
@@ -136,57 +110,62 @@ def show_repository(request, dir_name):
 
 class RepositoriesListView(ListView):
 
+    """Display adding by user repositories."""
+
     model = Repository
     context_object_name = "repos"
     template_name = "octonyan/index.html"
-    paginate_by = 20
+    paginate_by = 40
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(RepositoriesListView, self).\
             dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        """Return user repos."""
+        return get_repos(self.request.user)
 
 
 # TODO refactoring and change
-@login_required
-def show_commit(request, dir_name, commit_id, files_extenshion=None):
-    """Return changes make in current commit
+# @login_required
+# def show_commit(request, dir_name, commit_id, files_extenshion=None):
+#     """Return changes make in current commit
 
-    data -- include blocks code of each modify files.
+#     data -- include blocks code of each modify files.
 
-    """
-    commit = get_commit_by_rep_commit_id(dir_name, commit_id)
-    pth = path.join(settings.REPOS_PATH, dir_name)
-    repository = repo.Repo(pth)
-    data = []
-    # used encode('latin-1') below to solve some problem with unicode
-    # and bytestring
-    commit = repository[commit_id.encode('latin-1')]
-    if len(commit.parents) == 0:
-        parent = None
-    else:
-        parent = repository[commit.parents[0]].tree
+#     """
+#     commit = get_commit_by_rep_commit_id(dir_name, commit_id)
+#     pth = path.join(settings.REPOS_PATH, dir_name)
+#     repository = repo.Repo(pth)
+#     data = []
+#     # used encode('latin-1') below to solve some problem with unicode
+#     # and bytestring
+#     commit = repository[commit_id.encode('latin-1')]
+#     if len(commit.parents) == 0:
+#         parent = None
+#     else:
+#         parent = repository[commit.parents[0]].tree
 
-    delta = diff_tree.tree_changes(repository, parent, commit.tree)
+#     delta = diff_tree.tree_changes(repository, parent, commit.tree)
 
-    for item in delta:
-        block = []
-        old = ""
-        if item.old.sha:
-            old = repository[item.old.sha].data.split("\n")
+#     for item in delta:
+#         block = []
+#         old = ""
+#         if item.old.sha:
+#             old = repository[item.old.sha].data.split("\n")
 
-        new = repository[item.new.sha].data.split("\n")
-        for line in unified_diff(old, new):
-            block.append(line)
+#         new = repository[item.new.sha].data.split("\n")
+#         for line in unified_diff(old, new):
+#             block.append(line)
 
-        data.append(
-            (item.old.path, item.new.path, block)
-        )
-    context = {'data': data}
-    context = prepare_context(context, request.user)
+#         data.append(
+#             (item.old.path, item.new.path, block)
+#         )
+#     context = {'data': data}
+#     context = prepare_context(context, request.user)
 
-    return render(request, "octonyan/commit_info.html", context)
+#     return render(request, "octonyan/commit_info.html", context)
 
 
 # TODO refactoring and change

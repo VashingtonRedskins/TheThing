@@ -58,5 +58,3 @@ target/
 
 # Local repos
 /media/repos/*
-!/media/repos
-!/media

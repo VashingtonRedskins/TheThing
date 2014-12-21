@@ -1,4 +1,5 @@
 #Prerequisites:
+create folder ../analysis/{media, media/repos}
 pip install -r project_path/requirments.txt
 sudo brew/apt-get install redis
 
