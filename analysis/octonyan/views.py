@@ -127,45 +127,7 @@ class RepositoriesListView(ListView):
         return get_repos(self.request.user)
 
 
-# TODO refactoring and change
-# @login_required
-# def show_commit(request, dir_name, commit_id, files_extenshion=None):
-#     """Return changes make in current commit
 
-#     data -- include blocks code of each modify files.
-
-#     """
-#     commit = get_commit_by_rep_commit_id(dir_name, commit_id)
-#     pth = path.join(settings.REPOS_PATH, dir_name)
-#     repository = repo.Repo(pth)
-#     data = []
-#     # used encode('latin-1') below to solve some problem with unicode
-#     # and bytestring
-#     commit = repository[commit_id.encode('latin-1')]
-#     if len(commit.parents) == 0:
-#         parent = None
-#     else:
-#         parent = repository[commit.parents[0]].tree
-
-#     delta = diff_tree.tree_changes(repository, parent, commit.tree)
-
-#     for item in delta:
-#         block = []
-#         old = ""
-#         if item.old.sha:
-#             old = repository[item.old.sha].data.split("\n")
-
-#         new = repository[item.new.sha].data.split("\n")
-#         for line in unified_diff(old, new):
-#             block.append(line)
-
-#         data.append(
-#             (item.old.path, item.new.path, block)
-#         )
-#     context = {'data': data}
-#     context = prepare_context(context, request.user)
-
-#     return render(request, "octonyan/commit_info.html", context)
 
 
 # TODO refactoring and change

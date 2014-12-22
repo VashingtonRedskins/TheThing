@@ -2,7 +2,8 @@ import os
 from os import path
 from dulwich import repo
 from dulwich.client import HttpGitClient
-from octonyan.dao import is_rep, get_by_dir_name, get_head_commit
+from octonyan.dao import is_rep, get_by_dir_name, get_head_commit, \
+    get_repo_by_dir_name
 from octonyan.models import Repository, Commit, UserRepository, \
     CommitterRepository
 from shutil import rmtree

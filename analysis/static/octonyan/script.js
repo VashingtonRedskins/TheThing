@@ -96,7 +96,7 @@ $(function () {
         },
         yAxis: {
             title: {
-                text: 'Соответсвие %'
+                text: 'Code convention %'
             },
             min: 0,
             max:100
@@ -129,7 +129,7 @@ $(function () {
             },
             yAxis: {
                 title: {
-                    text: 'Соответсвие %'
+                    text: 'Code convention %'
                 },
                 min: 0,
                 max:100

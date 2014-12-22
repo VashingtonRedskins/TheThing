@@ -8,10 +8,6 @@ urlpatterns = patterns(
     url(r"^add/repo$", views.InitRepositoryView.as_view(), name="init_repo"),
     url(r"^repo/(?P<dir_name>\w[\w-]+)$",
         views.get_statistic_repository, name="repository"),
-    # url(r"^repo/(?P<dir_name>\w[\w-]+)/(?P<commit_id>\w+)$",
-    #     views.show_commit, name="commit_view"),
-    # show method by commit
     url(r"^repo/(?P<dir_name>\w[\w-]+)/(?P<commit_id>\w+)/analysis$",
         views.analysis, name="analysis"),
-    # analysis commit
 )
